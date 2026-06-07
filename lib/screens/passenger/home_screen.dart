@@ -1,17 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:sharedwheel_app/utils/app_navigator.dart';
 import '../../constants/app_colors.dart';
-import '../shared/notifications_screen.dart';
+import '../../models/ride_model.dart';
+import '../../services/ride_service.dart';
+import '../../utils/app_session.dart';
+import '../../widgets/empty_state_widget.dart';
+import '../../widgets/loading_widget.dart';
 import '../shared/messages_screen.dart';
+import '../shared/notifications_screen.dart';
+import 'ride_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final Function(int) onNavigate;
+  const HomeScreen({super.key, required this.onNavigate});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int currentIndex = 0;
+
+  final RideService rideService = RideService();
+  List<RideModel> rides = [];
+  bool isLoading = false;
+  @override
+  void initState() { super.initState(); loadRides();}
+  Future<void> loadRides() async {
+    setState(() { isLoading = true; });
+    try {
+      rides = await rideService.getAvailableRides();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    if (!mounted) return;
+    setState(() { isLoading = false; });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,45 +43,30 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        elevation: 0,
         title: const Text('SharedWheel'),
         actions: [
           IconButton(onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const NotificationsScreen(),
-              ),
-            );
-          }, icon: const Icon(Icons.notifications)),
+              AppNavigator.replace(context, NotificationsScreen());
+            },
+            icon: const Icon(Icons.notifications),
+          ),
         ],
       ),
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: RefreshIndicator(onRefresh: loadRides,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
           children: [
-            // WELCOME CARD
+            /// Welcome Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withAlpha(38),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-
+                borderRadius: BorderRadius.circular(16),),
               child: Row(
                 children: [
-                  const CircleAvatar(
-                    radius: 30,
-                    child: Icon(Icons.person, size: 30),
+                  const CircleAvatar(radius: 30,
+                    child: Icon(Icons.person,),
                   ),
 
                   const SizedBox(width: 15),
@@ -66,20 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Welcome Back 👋',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-
-                        const SizedBox(height: 4),
-
-                        const Text(
-                          'Abdul Ghafoor',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        const Text('Welcome Back 👋', style: TextStyle(color:Colors.grey,),),
+                        const SizedBox(height: 5,),
+                        Text(AppSession.fullName ?? 'Guest User', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,),),
                       ],
                     ),
                   ),
@@ -87,213 +85,104 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            const SizedBox(height: 20),
-
-            // SEARCH CARD
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withAlpha(38),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Find Your Ride',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: 'From City',
-                      prefixIcon: const Icon(Icons.location_on),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: 'To City',
-                      prefixIcon: const Icon(Icons.flag),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0D6EFD),
-                      ),
-
-                      child: const Text(
-                        'Search Rides',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
             const SizedBox(height: 25),
 
-            // POPULAR ROUTES
-            const Text(
-              '🔥 Popular Routes',
-
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-
+            /// Quick Actions
+            const Text('Quick Actions', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,),),
             const SizedBox(height: 12),
-
-            SizedBox(
-              height: 110,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  routeCard('Lahore', 'Islamabad'),
-                  routeCard('Lahore', 'Multan'),
-                  routeCard('Karachi', 'Hyderabad'),
-                  routeCard('Faisalabad', 'Lahore'),
-                ],
-              ),
+            Row(
+              children: [
+                Expanded(child: actionCard(icon: Icons.search, title: 'Search Ride', onTap: () {widget.onNavigate(1);},),),
+                const SizedBox(width: 12),
+                Expanded(child: actionCard(icon: Icons.book, title: 'Bookings', onTap: () {widget.onNavigate(2);}, ),),
+              ],
             ),
-
-            const SizedBox(height: 25),
-
-            // FEATURED RIDES
-            const Text(
-              '⭐ Featured Rides',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-
             const SizedBox(height: 12),
-
-            rideCard(),
-            rideCard(),
-            rideCard(),
-
-            const SizedBox(height: 25),
-
-            // BECOME DRIVER
-            Container(
-              padding: const EdgeInsets.all(20),
-
-              decoration: BoxDecoration(
-                color: Colors.orange.shade50,
-                borderRadius: BorderRadius.circular(16),
-              ),
-
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    '🚗 Become a Driver',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                Expanded(child: actionCard(icon: Icons.account_balance_wallet, title: 'Wallet', onTap: () {widget.onNavigate(3);},),),
+                const SizedBox(width: 12),
+                Expanded(child: actionCard(icon: Icons.message, title: 'Messages',
+                  onTap: () {
+                      AppNavigator.replace(context, MessagesScreen());                    },
                   ),
-
-                  const SizedBox(height: 10),
-
-                  const Text(
-                    'Earn money by sharing your ride with passengers.',
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: const Text('Get Started'),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 25),
+            /// Available Rides
+            const Text('Available Rides', style: TextStyle(
+                fontSize: 20,
+                fontWeight:
+                FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            if (isLoading)
+              const LoadingWidget()
+            else if (rides.isEmpty)
+              const EmptyStateWidget(message: 'No rides available',)
+            else
+              ...rides.take(5).map((ride) => rideCard(ride,),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget routeCard(String from, String to) {
-    return Container(
-      width: 180,
-      margin: const EdgeInsets.only(right: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withAlpha(38),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-
-      child: Center(
-        child: Text(
-          '$from\n↓\n$to',
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+  Widget actionCard({required IconData icon, required String title, required VoidCallback onTap,}) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding:const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: 32, color: AppColors.primary,),
+            const SizedBox(height: 10,),
+            Text(title, textAlign: TextAlign.center,),
+          ],
         ),
       ),
     );
   }
 
-  Widget rideCard() {
+  Widget rideCard(RideModel ride) {
     return Card(
-      elevation: 2,
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Lahore → Islamabad',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text('${ride.fromCity} → ${ride.toCity}',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
             ),
 
-            const SizedBox(height: 8),
-            const Text('👤 Ali Raza'),
-            const Text('📅 Tomorrow • 08:00 AM'),
-            const Text('👥 3 Seats Available'),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8,),
+
+            Text('👤 ${ride.driverName}',),
+
+            Text('⭐ ${ride.rating.toStringAsFixed(1)}',),
+
+            Text('👥 ${ride.availableSeats} Seats Available',),
+
+            const SizedBox(height: 10,),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Rs. 1,800',
-                  style: TextStyle(
-                    color: AppColors.success,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
+                Text('Rs. ${ride.farePerSeat.toStringAsFixed(0)}', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.bold, fontSize: 18,),),
+                ElevatedButton(
+                  onPressed: () {
+                    AppNavigator.replace(context, RideDetailsScreen(ride: ride));
+                  },
+                  child: const Text('View',),
                 ),
-                ElevatedButton(onPressed: () {}, child: const Text('View')),
               ],
             ),
           ],

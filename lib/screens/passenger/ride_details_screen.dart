@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:sharedwheel_app/models/ride_model.dart';
 import 'package:sharedwheel_app/widgets/section_title.dart';
 import '../../constants/app_colors.dart';
 import '../../widgets/primary_button.dart';
 
 class RideDetailsScreen extends StatelessWidget {
-  const RideDetailsScreen({super.key});
+  final RideModel ride;
+
+  const RideDetailsScreen({super.key, required this.ride});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.secondary,
       appBar: AppBar(
-        title: const Text('Ride Details',),
+        title: const Text('Ride Details'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -41,16 +44,15 @@ class RideDetailsScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Ali Raza',
-                            style: TextStyle(
+                          Text(ride.driverName.toUpperCase(),
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 5),
-                          const Text('⭐ 4.8 Rating'),
-                          const Text('🚗 120 Rides Completed'),
+                          SizedBox(height: 5),
+                          Text('⭐ ${ride.rating.toStringAsFixed(1)} Rating'),
+                          Text('🚗 ${ride.totalRides} Rides Completed'),
                         ],
                       ),
                     ),
@@ -63,17 +65,29 @@ class RideDetailsScreen extends StatelessWidget {
             // QUICK INFO
             Row(
               children: [
-                Expanded(child: infoCard('📅', 'Date', '10 Jun 2026')),
+                Expanded(child: infoCard('📅', 'Date', ride.travelDate)),
                 const SizedBox(width: 10),
-                Expanded(child: infoCard('⏰', 'Time', '08:00 AM')),
+                Expanded(child: infoCard('⏰', 'Time', ride.travelTime)),
               ],
             ),
             const SizedBox(height: 10),
             Row(
               children: [
-                Expanded(child: infoCard('👥', 'Seats', '3')),
+                Expanded(
+                  child: infoCard(
+                    '👥',
+                    'Seats',
+                    ride.availableSeats.toString(),
+                  ),
+                ),
                 const SizedBox(width: 10),
-                Expanded(child: infoCard('💰', 'Fare', 'Rs. 1800')),
+                Expanded(
+                  child: infoCard(
+                    '💰',
+                    'Fare',
+                    'Rs. ${ride.farePerSeat.toStringAsFixed(0)}',
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -82,18 +96,18 @@ class RideDetailsScreen extends StatelessWidget {
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                     Text(
-                      '📍 Lahore',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      '📍 ${ride.fromCity}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 8),
-                    Center(child: Icon(Icons.arrow_downward)),
+                    Center(child: Icon(Icons.arrow_right)),
                     SizedBox(height: 8),
                     Text(
-                      '🎯 Islamabad',
+                      '🎯 ${ride.toCity}',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -109,24 +123,24 @@ class RideDetailsScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
 
                 child: Column(
-                  children: const [
+                  children: [
                     ListTile(
-                      leading: Icon(Icons.directions_car),
-                      title: Text('Toyota Corolla'),
+                      leading: const Icon(Icons.directions_car),
+                      title: Text(ride.vehicleName),
                     ),
 
                     Divider(),
 
                     ListTile(
-                      leading: Icon(Icons.confirmation_number),
-                      title: Text('ABC-123'),
+                      leading: const Icon(Icons.confirmation_number),
+                      title: Text(ride.vehicleNumber),
                     ),
 
                     Divider(),
 
                     ListTile(
                       leading: Icon(Icons.color_lens),
-                      title: Text('White'),
+                      title: Text(ride.vehicleColor),
                     ),
                   ],
                 ),

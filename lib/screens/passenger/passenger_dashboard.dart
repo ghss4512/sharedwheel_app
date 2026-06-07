@@ -15,13 +15,27 @@ class PassengerDashboard extends StatefulWidget {
 
 class _PassengerDashboardState extends State<PassengerDashboard> {
   int currentIndex = 0;
-  final List<Widget> screens = const [
-    HomeScreen(),
-    SearchRidesScreen(),
-    MyBookingsScreen(),
-    WalletScreen(),
-    ProfileScreen(),
-  ];
+  late final List<Widget> screens;
+
+  @override
+  void initState() {
+    super.initState();
+    screens = [
+      HomeScreen(
+        onNavigate: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
+      ),
+
+      const SearchRidesScreen(),
+      const MyBookingsScreen(),
+      const WalletScreen(),
+      const ProfileScreen(),
+    ];
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -41,30 +55,11 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
         },
 
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Bookings',
-          ),
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet),
-            label: 'Wallet',
-          ),
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home',),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search',),
+          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Bookings',),
+          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: 'Wallet',),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile',),
         ],
       ),
     );
