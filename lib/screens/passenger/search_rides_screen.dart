@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sharedwheel_app/utils/app_navigator.dart';
+import 'package:sharedwheel_app/utils/functions.dart';
 import '../../models/ride_model.dart';
 import '../../services/ride_service.dart';
 import '../../widgets/empty_state_widget.dart';
@@ -59,7 +59,7 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search Rides',),
+        title: Text('Search Rides ${rides.length}',),
         backgroundColor: const Color(0xFF0D6EFD),
         foregroundColor: Colors.white,
       ),
@@ -142,9 +142,7 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
             if (isLoading)
               const LoadingWidget()
             else if (rides.isEmpty)
-              const EmptyStateWidget(
-                message: 'No rides found',
-              )
+              const EmptyStateWidget(message: 'No rides found',)
             else
               ListView.builder(
                 shrinkWrap: true,
@@ -168,7 +166,7 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${ride.fromCity} → ${ride.toCity}',
+            Text('${ride.fromCity.toUpperCase()} → ${ride.toCity.toUpperCase()}',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18,),
             ),
 
@@ -192,7 +190,7 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
 
                 ElevatedButton(
                   onPressed: () {
-                    AppNavigator.replace(context, RideDetailsScreen(ride: ride));
+                    Functions.navigateTo(context, RideDetailsScreen(ride: ride));
                   },
 
                   child: const Text( 'View Ride',),

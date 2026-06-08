@@ -15,35 +15,19 @@ class PassengerDashboard extends StatefulWidget {
 
 class _PassengerDashboardState extends State<PassengerDashboard> {
   int currentIndex = 0;
-  late final List<Widget> screens;
-
-  @override
-  void initState() {
-    super.initState();
-    screens = [
-      HomeScreen(
-        onNavigate: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
-      ),
-
-      const SearchRidesScreen(),
-      const MyBookingsScreen(),
-      const WalletScreen(),
-      const ProfileScreen(),
-    ];
-  }
-
+  final List<Widget> screens = const [
+    HomeScreen(),
+    SearchRidesScreen(),
+    MyBookingsScreen(),
+    WalletScreen(),
+    ProfileScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: currentIndex,
-        children: screens,
-      ),
+      body: IndexedStack(index: currentIndex, children: screens,),
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         selectedItemColor: AppColors.primary,

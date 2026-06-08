@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:sharedwheel_app/models/ride_model.dart';
+import 'package:sharedwheel_app/screens/passenger/my_bookings_screen.dart';
 import 'package:sharedwheel_app/widgets/section_title.dart';
 import '../../constants/app_colors.dart';
 import '../../widgets/primary_button.dart';
+import '../../utils/functions.dart';
+import '../../utils/app_session.dart';
+import '../../services/booking_service.dart';
 
-class RideDetailsScreen extends StatelessWidget {
+class RideDetailsScreen extends StatefulWidget {
   final RideModel ride;
 
   const RideDetailsScreen({super.key, required this.ride});
+
+  @override
+  State<RideDetailsScreen> createState() => _RideDetailsScreenState();
+}
+
+class _RideDetailsScreenState extends State<RideDetailsScreen> {
+  int seatsBooked = 1;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -44,15 +56,15 @@ class RideDetailsScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(ride.driverName.toUpperCase(),
+                          Text(widget.ride.driverName.toUpperCase(),
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           SizedBox(height: 5),
-                          Text('⭐ ${ride.rating.toStringAsFixed(1)} Rating'),
-                          Text('🚗 ${ride.totalRides} Rides Completed'),
+                          Text('⭐ ${widget.ride.rating.toStringAsFixed(1)} Rating'),
+                          Text('🚗 ${widget.ride.totalRides} Rides Completed'),
                         ],
                       ),
                     ),
@@ -65,9 +77,9 @@ class RideDetailsScreen extends StatelessWidget {
             // QUICK INFO
             Row(
               children: [
-                Expanded(child: infoCard('📅', 'Date', ride.travelDate)),
+                Expanded(child: infoCard('📅', 'Date', widget.ride.travelDate)),
                 const SizedBox(width: 10),
-                Expanded(child: infoCard('⏰', 'Time', ride.travelTime)),
+                Expanded(child: infoCard('⏰', 'Time', widget.ride.travelTime)),
               ],
             ),
             const SizedBox(height: 10),
@@ -77,7 +89,7 @@ class RideDetailsScreen extends StatelessWidget {
                   child: infoCard(
                     '👥',
                     'Seats',
-                    ride.availableSeats.toString(),
+                    widget.ride.availableSeats.toString(),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -85,7 +97,7 @@ class RideDetailsScreen extends StatelessWidget {
                   child: infoCard(
                     '💰',
                     'Fare',
-                    'Rs. ${ride.farePerSeat.toStringAsFixed(0)}',
+                    'Rs. ${widget.ride.farePerSeat.toStringAsFixed(0)}',
                   ),
                 ),
               ],
@@ -100,14 +112,14 @@ class RideDetailsScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '📍 ${ride.fromCity}',
+                      '📍 ${widget.ride.fromCity}',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 8),
                     Center(child: Icon(Icons.arrow_right)),
                     SizedBox(height: 8),
                     Text(
-                      '🎯 ${ride.toCity}',
+                      '🎯 ${widget.ride.toCity}',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -126,21 +138,21 @@ class RideDetailsScreen extends StatelessWidget {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.directions_car),
-                      title: Text(ride.vehicleName),
+                      title: Text(widget.ride.vehicleName),
                     ),
 
                     Divider(),
 
                     ListTile(
                       leading: const Icon(Icons.confirmation_number),
-                      title: Text(ride.vehicleNumber),
+                      title: Text(widget.ride.vehicleNumber),
                     ),
 
                     Divider(),
 
                     ListTile(
                       leading: Icon(Icons.color_lens),
-                      title: Text(ride.vehicleColor),
+                      title: Text(widget.ride.vehicleColor),
                     ),
                   ],
                 ),
@@ -169,14 +181,55 @@ class RideDetailsScreen extends StatelessWidget {
 
             const SizedBox(height: 30),
 
+            SectionTitle(title: '💺 Select Seats',),
+
+            const SizedBox(height: 30),
+            Card(
+              child: Padding(padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          onPressed: seatsBooked > 1 ? () {
+                            setState(() { seatsBooked--; });
+                          } : null,
+                          icon: const Icon(Icons.remove_circle,),
+                        ),
+                        Text(seatsBooked.toString(),
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold,),
+                        ),
+
+                        IconButton(onPressed:
+                          seatsBooked < widget.ride.availableSeats ? () {
+                            setState(() { seatsBooked++; });
+                          }: null,
+
+                          icon: const Icon(Icons.add_circle,),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    Text(
+                      'Total Fare: ${Functions.formatCurrency(widget.ride.farePerSeat * seatsBooked, 0)}',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
             SizedBox(
               width: double.infinity,
               height: 55,
               child: PrimaryButton(
-                text: '🚗 Request Ride',
-                onPressed: () {
-                  // Request Ride API
-                },
+                text: isLoading ? 'Processing...' : '🚗 Request Ride',
+                onPressed: isLoading ? null : requestRide,
               ),
             ),
             const SizedBox(height: 20),
@@ -201,5 +254,38 @@ class RideDetailsScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> requestRide() async {
+    if (AppSession.userId == null) {
+      Functions.error(context, 'Please login again.');
+      return;
+    }
+
+    setState(() { isLoading = true; });
+
+    try {
+      final result = await BookingService().bookRide(
+        rideId: widget.ride.id,
+        passengerId: AppSession.userId!,
+        seatsBooked: seatsBooked,
+      );
+
+      if (!mounted) return;
+
+      if (result['success'] == true) {
+        Functions.success(context, result['message']);
+        Functions.replaceWith(context, MyBookingsScreen());
+        // Navigator.pop(context);
+      } else {
+        Functions.error(context, result['message']);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      Functions.error(context, e.toString());
+    }
+
+    if (!mounted) return;
+    setState(() { isLoading = false; });
   }
 }

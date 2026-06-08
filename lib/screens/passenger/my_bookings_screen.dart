@@ -1,80 +1,80 @@
 import 'package:flutter/material.dart';
-
+import 'package:sharedwheel_app/utils/functions.dart';
 import '../../constants/app_colors.dart';
-import '../../widgets/primary_button.dart';
+import '../../models/booking_model.dart';
+import '../../services/booking_service.dart';
+import '../../widgets/empty_state_widget.dart';
+import '../../widgets/loading_widget.dart';
 
-class MyBookingsScreen extends StatelessWidget {
+class MyBookingsScreen extends StatefulWidget {
   const MyBookingsScreen({super.key});
+
+  @override
+  State<MyBookingsScreen> createState() => _MyBookingsScreenState();
+}
+
+class _MyBookingsScreenState extends State<MyBookingsScreen> {
+  final BookingService bookingService = BookingService();
+
+  List<BookingModel> bookings = [];
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadBookings();
+  }
+
+  Future<void> loadBookings() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      bookings = await bookingService.getMyBookings();
+    } catch (e) {
+      debugPrint('Booking Error: $e');
+    }
+
+    if (!mounted) return;
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.secondary,
       appBar: AppBar(
-        title: const Text('My Bookings'),
+        title: Text('My Bookings'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
 
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _bookingCard(
-            route: 'Lahore → Islamabad',
-            driver: 'Ali Raza',
-            date: '10 Jun 2026',
-            time: '08:00 AM',
-            seats: 2,
-            fare: 'Rs. 3,600',
-            status: 'Pending',
-            statusColor: Colors.orange,
-          ),
-
-          _bookingCard(
-            route: 'Lahore → Multan',
-            driver: 'Ahmed Khan',
-            date: '12 Jun 2026',
-            time: '09:30 AM',
-            seats: 1,
-            fare: 'Rs. 1,200',
-            status: 'Accepted',
-            statusColor: AppColors.success,
-          ),
-
-          _bookingCard(
-            route: 'Karachi → Hyderabad',
-            driver: 'Usman Ali',
-            date: '05 Jun 2026',
-            time: '07:00 AM',
-            seats: 3,
-            fare: 'Rs. 2,700',
-            status: 'Completed',
-            statusColor: AppColors.primary,
-          ),
-
-        ],
+      body: RefreshIndicator(
+        onRefresh: loadBookings,
+        child: isLoading
+            ? LoadingWidget()
+            : bookings.isEmpty
+            ? EmptyStateWidget(message: 'No bookings found')
+            : ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: bookings.length,
+                itemBuilder: (context, index) {
+                  return bookingCard(bookings[index]);
+                },
+              ),
       ),
     );
   }
 
-  Widget _bookingCard({
-    required String route,
-    required String driver,
-    required String date,
-    required String time,
-    required int seats,
-    required String fare,
-    required String status,
-    required Color statusColor,
-  }) {
-
+  Widget bookingCard(BookingModel booking) {
+    final Color statusColor = getStatusColor(booking.bookingStatus);
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      margin: EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -83,27 +83,19 @@ class MyBookingsScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    route,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    '${Functions.toProperCase(booking.fromCity)} → ${Functions.toProperCase(booking.toCity)}',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
 
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: statusColor.withAlpha(38),
                     borderRadius: BorderRadius.circular(20),
                   ),
-
                   child: Text(
-                    status,
+                    booking.bookingStatus.toUpperCase(),
                     style: TextStyle(
                       color: statusColor,
                       fontWeight: FontWeight.bold,
@@ -114,35 +106,33 @@ class MyBookingsScreen extends StatelessWidget {
             ),
 
             const SizedBox(height: 12),
-
-            Text('👤 Driver: $driver'),
-            const SizedBox(height: 5),
-            Text('📅 Date: $date'),
-            const SizedBox(height: 5),
-            Text('⏰ Time: $time'),
-            const SizedBox(height: 5),
-            Text('👥 Seats Booked: $seats'),
+            Text('📅 ${booking.travelDate}'),
+            Text('⏰ ${Functions.convertTo12Hour(booking.travelTime)}'),
+            Text('👥 Seats: ${booking.seatsBooked}'),
             const SizedBox(height: 10),
-            Text(
-              fare,
-              style: const TextStyle(
-                color: AppColors.success,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            PrimaryButton(
-              text: 'View Details',
-              onPressed: () {
-                // Navigate to booking details screen later
-              },
+            Text('Rs. ${Functions.formatCurrency(booking.totalFare, 0)}',
+              style: const TextStyle(color: AppColors.success, fontSize: 18, fontWeight: FontWeight.bold,),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Color getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'approved':
+        return Colors.green;
+      case 'pending':
+        return Colors.orange;
+      case 'rejected':
+        return Colors.red;
+      case 'completed':
+        return Colors.blue;
+      case 'cancelled':
+        return Colors.grey;
+      default:
+        return Colors.black;
+    }
   }
 }

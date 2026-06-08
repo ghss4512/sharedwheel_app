@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:sharedwheel_app/screens/driver/driver_dashboard.dart';
 import 'package:sharedwheel_app/services/auth_service.dart';
 import 'package:sharedwheel_app/utils/app_session.dart';
-import '../../utils/app_navigator.dart';
 import '../../constants/app_colors.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/primary_button.dart';
-import '../../widgets/app_snackbar.dart';
+import '../../utils/functions.dart';
 import '../../models/user_model.dart';
 import '../passenger/passenger_dashboard.dart';
 import 'register_screen.dart';
@@ -29,6 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 15),
             decoration: BoxDecoration(
               border: BoxBorder.all(width: 3, color: Colors.blue),
               borderRadius: BorderRadius.circular(50)
@@ -142,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> login() async {
     if (loginController.text.trim().isEmpty ||
         passwordController.text.trim().isEmpty) {
-      AppSnackBar.error(context, "Please enter login credentials.");
+      Functions.error(context, "Please enter login credentials.");
       return;
     }
     setState(() {
@@ -167,19 +168,19 @@ class _LoginScreenState extends State<LoginScreen> {
         if (!mounted) return;
 
         if (user.userType == 'admin') {
-          AppSnackBar.error(context, "Admin dashboard coming soon!!!");
+          Functions.error(context, "Admin dashboard coming soon!!!");
         } else if (user.userType == 'passenger') {
-          AppNavigator.replace(context, PassengerDashboard());
+          Functions.replaceWith(context, PassengerDashboard());
         } else if (user.userType == 'driver') {
-          AppSnackBar.error(context, "Driver dashboard coming soon!!!");
+          Functions.replaceWith(context, DriverDashboard());
         }
       }
     } catch (e) {
-      // if (e.toString().contains("sharedwheel.com")) {
-      //   AppSnackBar.error(context, "Please check your internet connection");
-      // } else {
-        AppSnackBar.error(context, e.toString());
-      // }
+      if (e.toString().contains("sharedwheel.com")) {
+        Functions.error(context, "Please check your internet connection");
+      } else {
+        Functions.error(context, e.toString());
+      }
     }
 
     setState(() {

@@ -7,6 +7,7 @@ class ApiEndpoints {
   // Rides
   static const String searchRides = '/rides/search.php';
   static const String rideDetails = '/rides/details.php';
+  static const String myRides = '/rides/my_rides.php';
 
   // Bookings
   static const String bookRide = '/bookings/book.php';

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sharedwheel_app/widgets/section_title.dart';
-
 import '../../constants/app_colors.dart';
 import '../../widgets/primary_button.dart';
 

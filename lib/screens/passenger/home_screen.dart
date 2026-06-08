@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sharedwheel_app/utils/app_navigator.dart';
+import 'package:sharedwheel_app/screens/passenger/my_bookings_screen.dart';
+import 'package:sharedwheel_app/screens/passenger/search_rides_screen.dart';
+import 'package:sharedwheel_app/screens/passenger/wallet_screen.dart';
+import 'package:sharedwheel_app/utils/functions.dart';
 import '../../constants/app_colors.dart';
 import '../../models/ride_model.dart';
 import '../../services/ride_service.dart';
@@ -11,8 +14,9 @@ import '../shared/notifications_screen.dart';
 import 'ride_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  final Function(int) onNavigate;
-  const HomeScreen({super.key, required this.onNavigate});
+  // final Function(int) onNavigate;
+  // const HomeScreen({super.key, required this.onNavigate});
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -46,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('SharedWheel'),
         actions: [
           IconButton(onPressed: () {
-              AppNavigator.replace(context, NotificationsScreen());
+              Functions.navigateTo(context, NotificationsScreen());
             },
             icon: const Icon(Icons.notifications),
           ),
@@ -92,19 +96,38 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(child: actionCard(icon: Icons.search, title: 'Search Ride', onTap: () {widget.onNavigate(1);},),),
+                Expanded(child: actionCard(icon: Icons.search, title: 'Search Ride',
+                  onTap: () {
+                      Functions.navigateTo(context, SearchRidesScreen());
+                    // widget.onNavigate(1);
+                    }
+                    ,)
+                  ,),
                 const SizedBox(width: 12),
-                Expanded(child: actionCard(icon: Icons.book, title: 'Bookings', onTap: () {widget.onNavigate(2);}, ),),
+                Expanded(child: actionCard(icon: Icons.book, title: 'Bookings',
+                  onTap: () {
+                  // widget.onNavigate(2);
+                    Functions.navigateTo(context, MyBookingsScreen());
+                  },
+                ),
+                ),
               ],
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(child: actionCard(icon: Icons.account_balance_wallet, title: 'Wallet', onTap: () {widget.onNavigate(3);},),),
+                Expanded(child: actionCard(icon: Icons.account_balance_wallet, title: 'Wallet',
+                  onTap: () {
+                  // widget.onNavigate(3);
+                    Functions.navigateTo(context, WalletScreen());
+                  },
+                ),
+                ),
                 const SizedBox(width: 12),
                 Expanded(child: actionCard(icon: Icons.message, title: 'Messages',
                   onTap: () {
-                      AppNavigator.replace(context, MessagesScreen());                    },
+                    Functions.navigateTo(context, MessagesScreen());
+                  }
                   ),
                 ),
               ],
@@ -145,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Icon(icon, size: 32, color: AppColors.primary,),
             const SizedBox(height: 10,),
-            Text(title, textAlign: TextAlign.center,),
+            Text(Functions.toProperCase(title), textAlign: TextAlign.center,),
           ],
         ),
       ),
@@ -160,18 +183,15 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${ride.fromCity} → ${ride.toCity}',
+            Text('${Functions.toProperCase(ride.fromCity)} → ${Functions.toProperCase(ride.toCity)}',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
             ),
 
             const SizedBox(height: 8,),
 
-            Text('👤 ${ride.driverName}',),
-
+            Text('👤 ${Functions.toProperCase(ride.driverName)}',),
             Text('⭐ ${ride.rating.toStringAsFixed(1)}',),
-
             Text('👥 ${ride.availableSeats} Seats Available',),
-
             const SizedBox(height: 10,),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -179,7 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text('Rs. ${ride.farePerSeat.toStringAsFixed(0)}', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.bold, fontSize: 18,),),
                 ElevatedButton(
                   onPressed: () {
-                    AppNavigator.replace(context, RideDetailsScreen(ride: ride));
+                    Functions.navigateTo(context, RideDetailsScreen(ride: ride));
                   },
                   child: const Text('View',),
                 ),

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import '../../utils/app_session.dart';
-import '../../utils/app_navigator.dart';
+import '../../utils/functions.dart';
 import '../passenger/passenger_dashboard.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -76,7 +76,8 @@ class _SplashScreenState extends State<SplashScreen> {
         // AdminDashboard();
       }
     } else {
-      AppNavigator.replace(context, const LoginScreen());
+      Functions.navigateTo(context, LoginScreen());
+      // AppNavigator.replace(context, const LoginScreen());
     }
   }
 }

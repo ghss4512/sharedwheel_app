@@ -25,6 +25,8 @@ class RideModel {
   final double rating;
   final int totalRides;
 
+  final String rideStatus;
+
   RideModel({
     required this.id,
     required this.driverId,
@@ -45,6 +47,8 @@ class RideModel {
     required this.profilePhoto,
     required this.rating,
     required this.totalRides,
+
+    required this.rideStatus,
 
   });
 
@@ -72,6 +76,8 @@ class RideModel {
       rating: double.tryParse(json['rating'].toString(),) ?? 0,
 
       totalRides: int.tryParse(json['total_rides'].toString(),) ?? 0,
+
+      rideStatus: json['ride_status'] ?? ''
     );
   }
 }
