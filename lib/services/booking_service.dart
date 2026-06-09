@@ -64,4 +64,14 @@ class BookingService {
       data: {'booking_id': bookingId.toString()},
     );
   }
+
+  Future<dynamic> updateBookingStatus({
+    required int bookingId,
+    required String status,
+  }) async {
+    return await api.post(
+      endpoint: ApiEndpoints.updateBookingStatus,
+      data: {'booking_id': bookingId.toString(), 'status': status},
+    );
+  }
 }

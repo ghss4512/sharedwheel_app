@@ -27,6 +27,8 @@ class RideModel {
 
   final String rideStatus;
 
+  final String? waitingStartedAt;
+
   RideModel({
     required this.id,
     required this.driverId,
@@ -49,6 +51,7 @@ class RideModel {
     required this.totalRides,
 
     required this.rideStatus,
+    required this.waitingStartedAt,
 
   });
 
@@ -68,16 +71,12 @@ class RideModel {
       vehicleName: json['vehicle_name'] ?? '',
       vehicleNumber: json['vehicle_number'] ?? '',
       vehicleColor: json['vehicle_color'] ?? '',
-
       driverName: json['full_name'] ?? '',
-
       profilePhoto: json['profile_photo'] ?? '',
-
       rating: double.tryParse(json['rating'].toString(),) ?? 0,
-
       totalRides: int.tryParse(json['total_rides'].toString(),) ?? 0,
-
-      rideStatus: json['ride_status'] ?? ''
+      rideStatus: json['ride_status'] ?? '',
+      waitingStartedAt: json['waiting_started_at'],
     );
   }
 }

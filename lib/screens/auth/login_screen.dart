@@ -171,11 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
     } catch (e) {
-      if (e.toString().contains("sharedwheel.com")) {
-        Functions.error(context, "Please check your internet connection");
-      } else {
         Functions.error(context, e.toString());
-      }
     }
 
     setState(() {

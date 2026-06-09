@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:sharedwheel_app/utils/functions.dart';
-
+import 'driver_ride_details_screen.dart';
 import '../../constants/app_colors.dart';
 import '../../models/ride_model.dart';
 import '../../services/ride_service.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../widgets/loading_widget.dart';
-import '../../utils/app_session.dart';
 
 class MyRidesScreen extends StatefulWidget {
   const MyRidesScreen({super.key});
@@ -72,47 +71,52 @@ class MyRidesScreenState extends State<MyRidesScreen> {
   }
 
   Widget rideCard(RideModel ride) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${Functions.toProperCase(ride.fromCity)} → ${Functions.toProperCase(ride.toCity)}',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 10),
-
-            Text('📅 ${ride.travelDate}'),
-            Text('⏰ ${Functions.convertTo12Hour(ride.travelTime)}'),
-            Text('👥 ${ride.availableSeats}/${ride.totalSeats} Seats Available',),
-
-            const SizedBox(height: 10),
-
-            Text(
-              'Rs. ${Functions.formatCurrency(ride.farePerSeat, 0)}',
-              style: const TextStyle(
-                color: AppColors.success,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+    return InkWell(
+      onTap: () {
+        Functions.navigateTo(context,  DriverRideDetailsScreen(ride: ride));
+      },
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${Functions.toProperCase(ride.fromCity)} → ${Functions.toProperCase(ride.toCity)}',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-            ),
-
-            const SizedBox(height: 10),
-
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.blue.withAlpha(30),
-                borderRadius: BorderRadius.circular(20),
+      
+              const SizedBox(height: 10),
+      
+              Text('📅 ${ride.travelDate}'),
+              Text('⏰ ${Functions.convertTo12Hour(ride.travelTime)}'),
+              Text('👥 ${ride.availableSeats}/${ride.totalSeats} Seats Available',),
+      
+              const SizedBox(height: 10),
+      
+              Text(
+                'Rs. ${Functions.formatCurrency(ride.farePerSeat, 0)}',
+                style: const TextStyle(
+                  color: AppColors.success,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              child: Text(ride.rideStatus.toUpperCase()),
-            ),
-          ],
+      
+              const SizedBox(height: 10),
+      
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withAlpha(30),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(ride.rideStatus.toUpperCase()),
+              ),
+            ],
+          ),
         ),
       ),
     );
