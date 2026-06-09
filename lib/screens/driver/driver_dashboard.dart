@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sharedwheel_app/screens/driver/ride_requests_screen.dart';
 import '../../constants/app_colors.dart';
-import '../../utils/functions.dart';
 import '../shared/profile_screen.dart';
 import 'driver_home_screen.dart';
 import 'my_rides_screen.dart';
@@ -19,7 +19,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
   final List<Widget> screens = const [
     DriverHomeScreen(),
     MyRidesScreen(),
-    PostRideScreen(),
+    RideRequestsScreen(),
     ProfileScreen(),
   ];
 
@@ -39,7 +39,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.directions_car), label: 'My Rides',),
-          BottomNavigationBarItem(icon: Icon(Icons.add_circle), label: 'Post Ride',),
+          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Requests',),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
