@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
+import '../../utils/functions.dart';
 import '../shared/profile_screen.dart';
 import 'driver_home_screen.dart';
 import 'my_rides_screen.dart';

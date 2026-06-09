@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:sharedwheel_app/screens/driver/driver_dashboard.dart';
 import 'login_screen.dart';
 import '../../utils/app_session.dart';
 import '../../utils/functions.dart';
@@ -69,14 +70,14 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
     if (loggedIn) {
       if (AppSession.userType == 'passenger') {
-        PassengerDashboard();
+        Functions.replaceWith(context, PassengerDashboard());
       } else if (AppSession.userType == 'driver') {
-        // DriverDashboard();
+        Functions.replaceWith(context, DriverDashboard());
       } else if (AppSession.userType == 'admin') {
         // AdminDashboard();
       }
     } else {
-      Functions.navigateTo(context, LoginScreen());
+      Functions.replaceWith(context, LoginScreen());
       // AppNavigator.replace(context, const LoginScreen());
     }
   }
