@@ -6,15 +6,16 @@ import '../../models/ride_model.dart';
 import '../../services/ride_service.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../widgets/loading_widget.dart';
+import '../../utils/app_session.dart';
 
 class MyRidesScreen extends StatefulWidget {
   const MyRidesScreen({super.key});
 
   @override
-  State<MyRidesScreen> createState() => _MyRidesScreenState();
+  State<MyRidesScreen> createState() => MyRidesScreenState();
 }
 
-class _MyRidesScreenState extends State<MyRidesScreen> {
+class MyRidesScreenState extends State<MyRidesScreen> {
   final RideService rideService = RideService();
   List<RideModel> rides = [];
   bool isLoading = false;
@@ -29,7 +30,6 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
     setState(() {
       isLoading = true;
     });
-
     try {
       rides = await rideService.getMyRides();
     } catch (e) {
@@ -37,7 +37,9 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
     }
 
     if (!mounted) return;
-
+    debugPrint(
+      'Rides Count: ${rides.length}',
+    );
     setState(() {
       isLoading = false;
     });
@@ -92,7 +94,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
             const SizedBox(height: 10),
 
             Text(
-              'Rs. ${ride.farePerSeat.toStringAsFixed(0)}',
+              'Rs. ${Functions.formatCurrency(ride.farePerSeat, 0)}',
               style: const TextStyle(
                 color: AppColors.success,
                 fontSize: 18,

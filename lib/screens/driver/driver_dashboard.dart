@@ -4,7 +4,6 @@ import '../../constants/app_colors.dart';
 import '../shared/profile_screen.dart';
 import 'driver_home_screen.dart';
 import 'my_rides_screen.dart';
-import 'post_ride_screen.dart';
 
 class DriverDashboard extends StatefulWidget {
   const DriverDashboard({super.key});
@@ -15,31 +14,68 @@ class DriverDashboard extends StatefulWidget {
 
 class _DriverDashboardState extends State<DriverDashboard> {
   int currentIndex = 0;
+  final ridesKey = GlobalKey<MyRidesScreenState>();
+  final requestsKey = GlobalKey<RideRequestsScreenState>();
 
-  final List<Widget> screens = const [
-    DriverHomeScreen(),
-    MyRidesScreen(),
-    RideRequestsScreen(),
-    ProfileScreen(),
-  ];
+  late final List<Widget> screens;
+
+  @override
+  void initState() {
+    super.initState();
+
+    screens = [
+      DriverHomeScreen(),
+      MyRidesScreen(key: ridesKey),
+      RideRequestsScreen(key: requestsKey),
+      ProfileScreen(),
+    ];
+  }
+
+  void refreshCurrentTab(int index) {
+    switch (index) {
+      case 1:
+        ridesKey.currentState?.loadRides();
+        break;
+
+      case 2:
+        requestsKey.currentState?.loadRequests();
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(index: currentIndex, children: screens),
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
+
         selectedItemColor: AppColors.primary,
+
         type: BottomNavigationBarType.fixed,
+
         onTap: (index) {
           setState(() {
             currentIndex = index;
           });
+
+          refreshCurrentTab(index);
         },
+
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.directions_car), label: 'My Rides',),
-          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Requests',),
+
+          BottomNavigationBarItem(
+            icon: Icon(Icons.directions_car),
+            label: 'My Rides',
+          ),
+
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list_alt),
+            label: 'Requests',
+          ),
+
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),

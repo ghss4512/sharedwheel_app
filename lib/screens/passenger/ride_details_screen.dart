@@ -56,14 +56,17 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(widget.ride.driverName.toUpperCase(),
+                          Text(
+                            widget.ride.driverName.toUpperCase(),
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           SizedBox(height: 5),
-                          Text('⭐ ${widget.ride.rating.toStringAsFixed(1)} Rating'),
+                          Text(
+                            '⭐ ${widget.ride.rating.toStringAsFixed(1)} Rating',
+                          ),
                           Text('🚗 ${widget.ride.totalRides} Rides Completed'),
                         ],
                       ),
@@ -79,7 +82,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
               children: [
                 Expanded(child: infoCard('📅', 'Date', widget.ride.travelDate)),
                 const SizedBox(width: 10),
-                Expanded(child: infoCard('⏰', 'Time', widget.ride.travelTime)),
+                Expanded(child: infoCard('⏰', 'Time', Functions.convertTo12Hour(widget.ride.travelTime))),
               ],
             ),
             const SizedBox(height: 10),
@@ -97,7 +100,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                   child: infoCard(
                     '💰',
                     'Fare',
-                    'Rs. ${widget.ride.farePerSeat.toStringAsFixed(0)}',
+                    'Rs. ${Functions.formatCurrency(widget.ride.farePerSeat, 0)}',
                   ),
                 ),
               ],
@@ -112,14 +115,14 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '📍 ${widget.ride.fromCity}',
+                      '📍 ${Functions.toProperCase(widget.ride.fromCity)}',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 8),
                     Center(child: Icon(Icons.arrow_right)),
                     SizedBox(height: 8),
                     Text(
-                      '🎯 ${widget.ride.toCity}',
+                      '🎯 ${Functions.toProperCase(widget.ride.toCity)}',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -138,21 +141,21 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.directions_car),
-                      title: Text(widget.ride.vehicleName),
+                      title: Text(Functions.toProperCase(widget.ride.vehicleName)),
                     ),
 
                     Divider(),
 
                     ListTile(
                       leading: const Icon(Icons.confirmation_number),
-                      title: Text(widget.ride.vehicleNumber),
+                      title: Text(widget.ride.vehicleNumber.toUpperCase()),
                     ),
 
                     Divider(),
 
                     ListTile(
                       leading: Icon(Icons.color_lens),
-                      title: Text(widget.ride.vehicleColor),
+                      title: Text(Functions.toProperCase(widget.ride.vehicleColor)),
                     ),
                   ],
                 ),
@@ -181,32 +184,44 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
 
             const SizedBox(height: 30),
 
-            SectionTitle(title: '💺 Select Seats',),
+            SectionTitle(title: '💺 Select Seats'),
 
-            const SizedBox(height: 30),
             Card(
-              child: Padding(padding: const EdgeInsets.all(16),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         IconButton(
-                          onPressed: seatsBooked > 1 ? () {
-                            setState(() { seatsBooked--; });
-                          } : null,
-                          icon: const Icon(Icons.remove_circle,),
+                          onPressed: seatsBooked > 1
+                              ? () {
+                                  setState(() {
+                                    seatsBooked--;
+                                  });
+                                }
+                              : null,
+                          icon: const Icon(Icons.remove_circle),
                         ),
-                        Text(seatsBooked.toString(),
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold,),
+                        Text(
+                          seatsBooked.toString(),
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
 
-                        IconButton(onPressed:
-                          seatsBooked < widget.ride.availableSeats ? () {
-                            setState(() { seatsBooked++; });
-                          }: null,
+                        IconButton(
+                          onPressed: seatsBooked < widget.ride.availableSeats
+                              ? () {
+                                  setState(() {
+                                    seatsBooked++;
+                                  });
+                                }
+                              : null,
 
-                          icon: const Icon(Icons.add_circle,),
+                          icon: const Icon(Icons.add_circle),
                         ),
                       ],
                     ),
@@ -215,7 +230,10 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
 
                     Text(
                       'Total Fare: ${Functions.formatCurrency(widget.ride.farePerSeat * seatsBooked, 0)}',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -262,7 +280,9 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
       return;
     }
 
-    setState(() { isLoading = true; });
+    setState(() {
+      isLoading = true;
+    });
 
     try {
       final result = await BookingService().bookRide(
@@ -286,6 +306,8 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
     }
 
     if (!mounted) return;
-    setState(() { isLoading = false; });
+    setState(() {
+      isLoading = false;
+    });
   }
 }

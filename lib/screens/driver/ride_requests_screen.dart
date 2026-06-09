@@ -10,10 +10,10 @@ class RideRequestsScreen extends StatefulWidget {
   const RideRequestsScreen({super.key});
 
   @override
-  State<RideRequestsScreen> createState() => _RideRequestsScreenState();
+  State<RideRequestsScreen> createState() => RideRequestsScreenState();
 }
 
-class _RideRequestsScreenState extends State<RideRequestsScreen> {
+class RideRequestsScreenState extends State<RideRequestsScreen> {
   final BookingService bookingService = BookingService();
   List<BookingRequestModel> requests = [];
   bool isLoading = false;

@@ -12,10 +12,7 @@ class RideService {
   }) async {
     final result = await api.get(
       endpoint: ApiEndpoints.searchRides,
-      queryParameters: {
-        'from_city': ?fromCity,
-        'to_city': ?toCity,
-      },
+      queryParameters: {'from_city': ?fromCity, 'to_city': ?toCity},
     );
 
     if (result['success'] != true) {
@@ -50,5 +47,33 @@ class RideService {
     return (result['rides'] as List)
         .map((ride) => RideModel.fromJson(ride))
         .toList();
+  }
+
+  Future<dynamic> postRide({
+    required String fromCity,
+    required String toCity,
+    required String travelDate,
+    required String travelTime,
+    required int totalSeats,
+    required double farePerSeat,
+    required String vehicleName,
+    required String vehicleNumber,
+    required String vehicleColor,
+  }) async {
+    return await api.post(
+      endpoint: ApiEndpoints.postRide,
+      data: {
+        'driver_id': AppSession.userId.toString(),
+        'from_city': fromCity,
+        'to_city': toCity,
+        'travel_date': travelDate,
+        'travel_time': travelTime,
+        'total_seats': totalSeats.toString(),
+        'fare_per_seat': farePerSeat.toString(),
+        'vehicle_name': vehicleName,
+        'vehicle_number': vehicleNumber,
+        'vehicle_color': vehicleColor,
+      },
+    );
   }
 }

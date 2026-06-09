@@ -166,15 +166,12 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${ride.fromCity.toUpperCase()} → ${ride.toCity.toUpperCase()}',
+            Text('${Functions.toProperCase(ride.fromCity)} → ${Functions.toProperCase(ride.toCity)}',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18,),
             ),
-
             const SizedBox(height: 8),
-
             Text('📅 ${ride.travelDate}',),
-
-            Text('⏰ ${ride.travelTime}',),
+            Text('⏰ ${Functions.convertTo12Hour(ride.travelTime)}',),
 
             Text('👥 ${ride.availableSeats} Seats Available',),
 
@@ -183,7 +180,7 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Rs. ${ride.farePerSeat.toStringAsFixed(0)}',
+                Text('Rs. ${Functions.formatCurrency(ride.farePerSeat, 0)}',
                   style:
                   const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 18,),
                 ),
