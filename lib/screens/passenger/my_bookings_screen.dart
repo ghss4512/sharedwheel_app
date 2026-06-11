@@ -10,10 +10,10 @@ class MyBookingsScreen extends StatefulWidget {
   const MyBookingsScreen({super.key});
 
   @override
-  State<MyBookingsScreen> createState() => _MyBookingsScreenState();
+  State<MyBookingsScreen> createState() => MyBookingsScreenState();
 }
 
-class _MyBookingsScreenState extends State<MyBookingsScreen> {
+class MyBookingsScreenState extends State<MyBookingsScreen> {
   final BookingService bookingService = BookingService();
 
   List<BookingModel> bookings = [];
@@ -23,6 +23,10 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   void initState() {
     super.initState();
     loadBookings();
+  }
+
+  Future<void> refreshData() async {
+    await loadBookings();
   }
 
   Future<void> loadBookings() async {
@@ -83,20 +87,37 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             Align(
               alignment: Alignment.center,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 6,),
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: statusColor.withAlpha(38),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text(
-                  booking.bookingStatus.toUpperCase(),
-                  style: TextStyle(
-                    color: statusColor,
-                    fontWeight: FontWeight.bold,
+                child: Center(
+                  child: Text(
+                    booking.bookingStatus.toUpperCase(),
+                    style: TextStyle(
+                      color: statusColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
             ),
+
+            const SizedBox(height: 10),
+
+            buildCurrentRideStatus(booking.rideStatus),
+
+            const SizedBox(height: 12),
+
+            if (booking.bookingStatus == 'approved' ||
+                booking.bookingStatus == 'boarded' ||
+                booking.bookingStatus == 'completed')
+              buildRideProgress(booking.rideStatus),
 
             const SizedBox(height: 10),
 
@@ -148,6 +169,146 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         ),
       ),
     );
+  }
+
+  Widget buildRideProgress(String rideStatus) {
+    final statuses = [
+      'enroute',
+      'arrived',
+      'waiting',
+      'in_progress',
+      'completed',
+    ];
+
+    final currentIndex = statuses.indexOf(rideStatus.toLowerCase());
+
+    return Card(
+      color: Colors.grey.shade50,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Ride Progress',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 10),
+
+            ...statuses.asMap().entries.map((entry) {
+              final completed = entry.key <= currentIndex;
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      completed
+                          ? Icons.check_circle
+                          : Icons.radio_button_unchecked,
+                      color: completed ? Colors.green : Colors.grey,
+                      size: 20,
+                    ),
+
+                    const SizedBox(width: 10),
+
+                    Text(getRideStatusTitle(entry.value)),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildCurrentRideStatus(String rideStatus) {
+    IconData icon;
+    Color color;
+    String title;
+
+    switch (rideStatus.toLowerCase()) {
+      case 'enroute':
+        icon = Icons.directions_car;
+        color = Colors.blue;
+        title = 'Driver On The Way';
+        break;
+
+      case 'arrived':
+        icon = Icons.location_on;
+        color = Colors.orange;
+        title = 'Driver Has Arrived';
+        break;
+
+      case 'waiting':
+        icon = Icons.hourglass_top;
+        color = Colors.deepOrange;
+        title = 'Waiting For Passengers';
+        break;
+
+      case 'in_progress':
+        icon = Icons.route;
+        color = Colors.purple;
+        title = 'Ride In Progress';
+        break;
+
+      case 'completed':
+        icon = Icons.check_circle;
+        color = Colors.green;
+        title = 'Ride Completed';
+        break;
+
+      default:
+        icon = Icons.schedule;
+        color = Colors.grey;
+        title = 'Ride Scheduled';
+    }
+
+    return Container(
+      width: double.infinity,
+
+      padding: const EdgeInsets.all(12),
+
+      decoration: BoxDecoration(
+        color: color.withAlpha(25),
+
+        borderRadius: BorderRadius.circular(12),
+      ),
+
+      child: Row(
+        children: [
+          Icon(icon, color: color),
+
+          const SizedBox(width: 10),
+
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(color: color, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String getRideStatusTitle(String status) {
+    switch (status) {
+      case 'enroute':
+        return 'Driver Started Journey';
+      case 'arrived':
+        return 'Driver Arrived';
+      case 'waiting':
+        return 'Waiting For Passengers';
+      case 'in_progress':
+        return 'Ride In Progress';
+      case 'completed':
+        return 'Ride Completed';
+      default:
+        return status;
+    }
   }
 
   Color getStatusColor(String status) {

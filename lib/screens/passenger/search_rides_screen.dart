@@ -10,16 +10,17 @@ class SearchRidesScreen extends StatefulWidget {
   const SearchRidesScreen({super.key});
 
   @override
-  State<SearchRidesScreen> createState() => _SearchRidesScreenState();
+  State<SearchRidesScreen> createState() => SearchRidesScreenState();
 }
 
-class _SearchRidesScreenState extends State<SearchRidesScreen> {
+class SearchRidesScreenState extends State<SearchRidesScreen> {
   final TextEditingController fromController = TextEditingController();
   final TextEditingController toController = TextEditingController();
   final RideService rideService = RideService();
   List<RideModel> rides = [];
   bool isLoading = false;
   DateTime? selectedDate;
+
   Future<void> pickDate() async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -35,8 +36,14 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
     }
   }
 
+  Future<void> refreshData() async {
+    await searchRides();
+  }
+
   Future<void> searchRides() async {
-    setState(() { isLoading = true; });
+    setState(() {
+      isLoading = true;
+    });
     try {
       final result = await rideService.searchRides(
         fromCity: fromController.text.trim(),
@@ -45,21 +52,25 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
 
       if (!mounted) return;
 
-      setState(() { rides = result; });
+      setState(() {
+        rides = result;
+      });
     } catch (e) {
-      debugPrint('Search Ride Error: $e',);
+      debugPrint('Search Ride Error: $e');
     }
 
     if (!mounted) return;
 
-    setState(() {isLoading = false;});
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Search Rides ${rides.length}',),
+        title: Text('Search Rides ${rides.length}'),
         backgroundColor: const Color(0xFF0D6EFD),
         foregroundColor: Colors.white,
       ),
@@ -80,7 +91,7 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
                       controller: fromController,
                       decoration: InputDecoration(
                         labelText: 'From City',
-                        prefixIcon: const Icon(Icons.location_on,),
+                        prefixIcon: const Icon(Icons.location_on),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -93,9 +104,10 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
                       controller: toController,
                       decoration: InputDecoration(
                         labelText: 'To City',
-                        prefixIcon: const Icon(Icons.flag,),
+                        prefixIcon: const Icon(Icons.flag),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
 
@@ -106,12 +118,13 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.grey,
-                          ),
-                          borderRadius: BorderRadius.circular(12),),
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         child: Text(
-                          selectedDate == null ? 'Select Travel Date' : '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}',
+                          selectedDate == null
+                              ? 'Select Travel Date'
+                              : '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}',
                         ),
                       ),
                     ),
@@ -120,10 +133,13 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: searchRides,
-                        style:ElevatedButton.styleFrom(
+                        style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF0D6EFD),
                         ),
-                        child: const Text('Search Rides', style: TextStyle(color: Colors.white,),),
+                        child: const Text(
+                          'Search Rides',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                   ],
@@ -134,7 +150,10 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
             const SizedBox(height: 20),
             Align(
               alignment: Alignment.centerLeft,
-              child: Text('Available Rides', style: Theme.of(context).textTheme.titleLarge,),
+              child: Text(
+                'Available Rides',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
             ),
 
             const SizedBox(height: 15),
@@ -142,14 +161,14 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
             if (isLoading)
               const LoadingWidget()
             else if (rides.isEmpty)
-              const EmptyStateWidget(message: 'No rides found',)
+              const EmptyStateWidget(message: 'No rides found')
             else
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: rides.length,
-                itemBuilder:(context, index) {
-                  return rideCard(rides[index],);
+                itemBuilder: (context, index) {
+                  return rideCard(rides[index]);
                 },
               ),
           ],
@@ -166,31 +185,39 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${Functions.toProperCase(ride.fromCity)} → ${Functions.toProperCase(ride.toCity)}',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18,),
+            Text(
+              '${Functions.toProperCase(ride.fromCity)} → ${Functions.toProperCase(ride.toCity)}',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 8),
-            Text('📅 ${ride.travelDate}',),
-            Text('⏰ ${Functions.convertTo12Hour(ride.travelTime)}',),
+            Text('📅 ${ride.travelDate}'),
+            Text('⏰ ${Functions.convertTo12Hour(ride.travelTime)}'),
 
-            Text('👥 ${ride.availableSeats} Seats Available',),
+            Text('👥 ${ride.availableSeats} Seats Available'),
 
             const SizedBox(height: 10),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Rs. ${Functions.formatCurrency(ride.farePerSeat, 0)}',
-                  style:
-                  const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 18,),
+                Text(
+                  'Rs. ${Functions.formatCurrency(ride.farePerSeat, 0)}',
+                  style: const TextStyle(
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
                 ),
 
                 ElevatedButton(
                   onPressed: () {
-                    Functions.navigateTo(context, RideDetailsScreen(ride: ride));
+                    Functions.navigateTo(
+                      context,
+                      RideDetailsScreen(ride: ride),
+                    );
                   },
 
-                  child: const Text( 'View Ride',),
+                  child: const Text('View Ride'),
                 ),
               ],
             ),

@@ -19,16 +19,22 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
 
   final RideService rideService = RideService();
   List<RideModel> rides = [];
   bool isLoading = false;
   @override
   void initState() { super.initState(); loadRides();}
+
+  Future<void> refreshData() async {
+    // reload dashboard stats
+    loadRides();
+  }
+
   Future<void> loadRides() async {
     setState(() { isLoading = true; });
     try {

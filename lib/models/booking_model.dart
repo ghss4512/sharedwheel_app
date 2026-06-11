@@ -11,6 +11,7 @@ class BookingModel {
   final double totalFare;
 
   final String bookingStatus;
+  final String rideStatus;
   final String paymentStatus;
 
   final String fromCity;
@@ -30,12 +31,14 @@ class BookingModel {
     required this.farePerSeat,
     required this.totalFare,
     required this.bookingStatus,
+    required this.rideStatus,
     required this.paymentStatus,
     required this.fromCity,
     required this.toCity,
     required this.travelDate,
     required this.travelTime,
     required this.createdAt,
+
 
   });
 
@@ -49,11 +52,13 @@ class BookingModel {
       farePerSeat: double.parse(json['fare_per_seat'].toString(),),
       totalFare: double.parse(json['total_fare'].toString(),),
       bookingStatus: json['booking_status'] ?? '',
+      rideStatus: json['ride_status'] ?? 'scheduled',
       paymentStatus: json['payment_status'] ?? '',
       fromCity: json['from_city'] ?? '',
       toCity: json['to_city'] ?? '',
       travelDate: json['travel_date'] ?? '',
       travelTime: json['travel_time'] ?? '',
+
       createdAt: json['created_at'] ?? '',
     );
   }

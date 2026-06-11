@@ -15,35 +15,54 @@ class PassengerDashboard extends StatefulWidget {
 
 class _PassengerDashboardState extends State<PassengerDashboard> {
   int currentIndex = 0;
-  final List<Widget> screens = const [
-    HomeScreen(),
-    SearchRidesScreen(),
-    MyBookingsScreen(),
-    WalletScreen(),
-    ProfileScreen(),
-  ];
+
+  final homeKey = GlobalKey<HomeScreenState>();
+  final searchKey = GlobalKey<SearchRidesScreenState>();
+  final bookingsKey = GlobalKey<MyBookingsScreenState>();
 
   @override
   Widget build(BuildContext context) {
+    final screens = [
+      HomeScreen(key: homeKey),
+      SearchRidesScreen(key: searchKey),
+      MyBookingsScreen(key: bookingsKey),
+      const WalletScreen(),
+      const ProfileScreen(),
+    ];
     return Scaffold(
-      body: IndexedStack(index: currentIndex, children: screens,),
+      body: IndexedStack(index: currentIndex, children: screens),
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         selectedItemColor: AppColors.primary,
         type: BottomNavigationBarType.fixed,
-        onTap: (index) {
+        onTap: (index) async {
           setState(() {
             currentIndex = index;
           });
+
+          switch (index) {
+            case 0:
+              await homeKey.currentState?.refreshData();
+              break;
+            case 1:
+              await searchKey.currentState?.refreshData();
+              break;
+            case 2:
+              await bookingsKey.currentState?.refreshData();
+              break;
+          }
         },
 
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home',),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search',),
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Bookings',),
-          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: 'Wallet',),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile',),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Bookings'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_balance_wallet),
+            label: 'Wallet',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
