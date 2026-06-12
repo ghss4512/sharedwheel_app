@@ -74,4 +74,11 @@ class BookingService {
       data: {'booking_id': bookingId.toString(), 'status': status},
     );
   }
+
+  Future<dynamic> markRemainingNoShows(int rideId) async {
+    return await api.post(
+      endpoint: ApiEndpoints.markRemainingNoShows,
+      data: {'ride_id': rideId.toString()},
+    );
+  }
 }

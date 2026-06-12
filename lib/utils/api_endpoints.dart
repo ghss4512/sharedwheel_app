@@ -21,6 +21,7 @@ class ApiEndpoints {
   static const String approveBooking = '/bookings/approve_booking.php';
   static const String rejectBooking = '/bookings/reject_booking.php';
   static const String updateBookingStatus = '/bookings/update_booking_status.php';
+  static const String markRemainingNoShows = '/bookings/mark_remaining_no_shows.php';
 
   // Wallet
   static const String wallet = '/wallet/index.php';

@@ -39,6 +39,14 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
   int get noShowCount =>
       passengers.where((p) => p.bookingStatus == 'no_show').length;
 
+  bool get showTimer => ride.rideStatus == 'waiting' && approvedCount > 0;
+
+  bool get canStartRide =>
+      ride.rideStatus == 'waiting' && approvedCount == 0 && boardedCount > 0;
+
+  bool get noPassengersBoarded =>
+      ride.rideStatus == 'waiting' && approvedCount == 0 && boardedCount == 0;
+
   @override
   void initState() {
     super.initState();
@@ -136,14 +144,12 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
               },
             ),
 
-          if (ride.rideStatus == 'waiting')
+          if (canStartRide)
             PrimaryButton(
               text: 'Start Ride',
-              onPressed: hasBoardedPassengers
-                  ? () {
-                      confirmStartRide();
-                    }
-                  : null,
+              onPressed: () {
+                confirmStartRide();
+              },
             ),
 
           if (ride.rideStatus == 'in_progress')
@@ -172,7 +178,7 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
             ),
 
           // Waiting Countdown Card
-          if (ride.rideStatus == 'waiting')
+          if (showTimer)
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -341,8 +347,6 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
     final waitingMinutes = await settingsService.getDriverWaitingTime();
     final waitingStart = DateTime.parse(ride.waitingStartedAt!);
 
-
-
     final elapsedSeconds = DateTime.now().difference(waitingStart).inSeconds;
     final totalSeconds = waitingMinutes * 60;
     remainingSeconds = totalSeconds - elapsedSeconds;
@@ -354,7 +358,7 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
   }
 
   Future<void> refreshRide() async {
-    final updatedRide = await rideService.getRideDetails(ride.id,);
+    final updatedRide = await rideService.getRideDetails(ride.id);
     if (updatedRide == null) {
       return;
     }
@@ -377,7 +381,6 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
         final message = result['message'];
 
         await refreshRide();
-
         if (ride.rideStatus == 'waiting') {
           await loadPassengers();
           await initializeCountdown();
@@ -395,11 +398,14 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
   }
 
   Future<void> updatePassengerStatus(int bookingId, String status) async {
+    debugPrint('Updating Booking: $bookingId -> $status');
     try {
       final result = await bookingService.updateBookingStatus(
         bookingId: bookingId,
         status: status,
       );
+
+      debugPrint('API Result: $result');
 
       if (!mounted) return;
 
@@ -411,6 +417,8 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
         Functions.error(context, result['message']);
       }
     } catch (e) {
+      debugPrint('Update Passenger Error: $e');
+
       if (!mounted) return;
 
       Functions.error(context, 'Unable to update passenger status.');
@@ -605,6 +613,97 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
     }
   }
 
+  Future<void> showWaitingExpiredDialog() async {
+    final approvedPassengers = passengers
+        .where((p) => p.bookingStatus == 'approved')
+        .length;
+    final boardedPassengers = passengers
+        .where((p) => p.bookingStatus == 'boarded')
+        .length;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        title: const Text('Waiting Time Expired'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Boarded Passengers: '
+              '$boardedPassengers',
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Pending Passengers: '
+              '$approvedPassengers',
+            ),
+          ],
+        ),
+
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              extendWaitingTime();
+            },
+            child: const Text('Extend 5 Min'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              markRemainingNoShows();
+            },
+            child: const Text('Mark Remaining No Shows'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> showStartRideDialog(String message) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        title: const Text('No Shows Processed'),
+        content: Text(
+          '$message\n\n'
+          'Would you like to start the ride now?',
+        ),
+
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Later'),
+          ),
+
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await updateRideStatus('in_progress');
+            },
+            child: const Text('Start Ride'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> markRemainingNoShows() async {
+    final result = await bookingService.markRemainingNoShows(ride.id);
+    if (!mounted) return;
+    if (result['success'] == true) {
+      await loadPassengers();
+      if (!mounted) return;
+      await showStartRideDialog(result['message']);
+    } else {
+      Functions.error(context, result['message']);
+    }
+  }
+
   void startTimer() {
     timer?.cancel();
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -616,31 +715,20 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
         });
       } else {
         timer.cancel();
-
         if (waitingExpiredShown) return;
-
         waitingExpiredShown = true;
-
         if (!mounted) return;
-
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => AlertDialog(
-            title: const Text('Waiting Time Expired'),
-            content: const Text('Mark remaining passengers as No Show.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
+        showWaitingExpiredDialog();
       }
     });
+  }
+
+  void extendWaitingTime() {
+    setState(() {
+      remainingSeconds += 5 * 60;
+      waitingExpiredShown = false;
+    });
+    startTimer();
   }
 
   bool get hasBoardedPassengers {
