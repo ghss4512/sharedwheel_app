@@ -20,6 +20,8 @@ class BookingModel {
   final String travelDate;
   final String travelTime;
 
+  final String driverName;
+
   final String createdAt;
 
   BookingModel({
@@ -37,9 +39,8 @@ class BookingModel {
     required this.toCity,
     required this.travelDate,
     required this.travelTime,
+    required this.driverName,
     required this.createdAt,
-
-
   });
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
@@ -58,6 +59,7 @@ class BookingModel {
       toCity: json['to_city'] ?? '',
       travelDate: json['travel_date'] ?? '',
       travelTime: json['travel_time'] ?? '',
+      driverName: json['driver_name'] ?? '',
 
       createdAt: json['created_at'] ?? '',
     );

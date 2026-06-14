@@ -19,10 +19,18 @@ class ApiEndpoints {
   static const String myBookings = '/bookings/my_bookings.php';
   static const String rideRequests = '/bookings/ride_requests.php';
   static const String rejectBooking = '/bookings/reject_booking.php';
-  static const String updateBookingStatus = '/bookings/update_booking_status.php';
-  static const String markRemainingNoShows = '/bookings/mark_remaining_no_shows.php';
+  static const String updateBookingStatus =
+      '/bookings/update_booking_status.php';
+  static const String markRemainingNoShows =
+      '/bookings/mark_remaining_no_shows.php';
 
   // Wallet
   static const String getWallet = '/wallet/get_wallet.php';
-  static const String getWalletTransactions = '/wallet/get_wallet_transactions.php';
+  static const String getWalletTransactions =
+      '/wallet/get_wallet_transactions.php';
+
+  // Ratings & reviews
+  static const String submitRating = '/ratings/submit_rating.php';
+  static const String getUserRatings = '/ratings/get_user_ratings.php';
+  static const String canRate = '/ratings/can_rate.php';
 }

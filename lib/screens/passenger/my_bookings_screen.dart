@@ -5,6 +5,7 @@ import '../../models/booking_model.dart';
 import '../../services/booking_service.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../widgets/loading_widget.dart';
+import '../shared/submit_rating_screen.dart';
 
 class MyBookingsScreen extends StatefulWidget {
   const MyBookingsScreen({super.key});
@@ -158,64 +159,43 @@ class MyBookingsScreenState extends State<MyBookingsScreen> {
             ),
 
             const SizedBox(height: 10),
-
             buildCurrentRideStatus(booking.rideStatus),
-
             const SizedBox(height: 12),
-
             if (booking.bookingStatus == 'approved' ||
                 booking.bookingStatus == 'boarded' ||
                 booking.bookingStatus == 'completed')
               buildRideProgress(booking.rideStatus),
-
             const SizedBox(height: 10),
-
             // ROUTE
             Text(
               '${Functions.toProperCase(booking.fromCity)} → ${Functions.toProperCase(booking.toCity)}',
-
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-
             const Divider(),
-
             const SizedBox(height: 5),
-
             // DATE
-            Text('📅 Date: ${booking.travelDate}'),
-
+            Text('📅 Date: ${Functions.formatDate(booking.travelDate)}'),
             const SizedBox(height: 5),
-
             // TIME
             Text('⏰ Time: ${Functions.convertTo12Hour(booking.travelTime)}'),
-
             const SizedBox(height: 5),
-
             // SEATS
             Text('👥 Seats Booked: ${booking.seatsBooked}'),
-
             const SizedBox(height: 5),
-
             // PAYMENT STATUS
             if (booking.paymentStatus.isNotEmpty)
               Text('💳 Payment: ${booking.paymentStatus.toUpperCase()}'),
-
             const SizedBox(height: 12),
-
             // FARE
             Text(
               'Rs. ${Functions.formatCurrency(booking.totalFare, 0)}',
-
               style: const TextStyle(
                 color: AppColors.success,
-
                 fontSize: 20,
-
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 12),
-
             if ((booking.bookingStatus == 'pending' ||
                     booking.bookingStatus == 'approved') &&
                 booking.rideStatus != 'in_progress' &&
@@ -231,6 +211,34 @@ class MyBookingsScreenState extends State<MyBookingsScreen> {
                   ),
                   onPressed: () {
                     cancelBooking(booking);
+                  },
+                ),
+              ),
+
+            if (booking.bookingStatus == 'completed' &&
+                booking.rideStatus == 'completed')
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.star),
+                  label: const Text('Rate Driver'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber,
+                    foregroundColor: Colors.black,
+                  ),
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SubmitRatingScreen(
+                          rideId: booking.rideId,
+                          reviewedUserId: booking.driverId,
+                          userName: booking.driverName,
+                        ),
+                      ),
+                    );
+
+                    await loadBookings();
                   },
                 ),
               ),
