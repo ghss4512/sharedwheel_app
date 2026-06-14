@@ -138,7 +138,7 @@ class RideRequestsScreenState extends State<RideRequestsScreen> {
 
   Future<void> approveRequest(BookingRequestModel request) async {
     try {
-      final result = await bookingService.approveBooking(request.bookingId);
+      final result = await bookingService.updateBookingStatus(bookingId: request.bookingId, status: 'approved');
 
       if (!mounted) return;
 

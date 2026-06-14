@@ -7,10 +7,7 @@ import '../models/passenger_model.dart';
 class RideService {
   final ApiService api = ApiService();
 
-  Future<List<RideModel>> searchRides({
-    String? fromCity,
-    String? toCity,
-  }) async {
+  Future<List<RideModel>> searchRides({String? fromCity, String? toCity,}) async {
     final result = await api.get(
       endpoint: ApiEndpoints.searchRides,
       queryParameters: {'from_city': ?fromCity, 'to_city': ?toCity},
@@ -91,10 +88,7 @@ class RideService {
         .toList();
   }
 
-  Future<dynamic> updateRideStatus({
-    required int rideId,
-    required String status,
-  }) async {
+  Future<dynamic> updateRideStatus({required int rideId, required String status,}) async {
     return await api.post(
       endpoint: ApiEndpoints.updateRideStatus,
       data: {'ride_id': rideId.toString(), 'status': status},

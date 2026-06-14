@@ -45,6 +45,55 @@ class MyBookingsScreenState extends State<MyBookingsScreen> {
     });
   }
 
+  Future<void> cancelBooking(BookingModel booking) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Cancel Booking'),
+        content: const Text(
+          'Are you sure you want to cancel this booking?\n\n'
+          'A cancellation deduction may apply.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, false);
+            },
+            child: const Text('No'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) {
+      return;
+    }
+
+    try {
+      final result = await bookingService.updateBookingStatus(
+        bookingId: booking.id,
+        status: 'cancelled',
+      );
+      if (!mounted) return;
+      if (result['success'] == true) {
+        Functions.success(context, result['message']);
+        await loadBookings();
+      } else {
+        Functions.error(context, result['message']);
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      Functions.error(context, 'Unable to cancel booking.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -165,6 +214,26 @@ class MyBookingsScreenState extends State<MyBookingsScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+            const SizedBox(height: 12),
+
+            if ((booking.bookingStatus == 'pending' ||
+                    booking.bookingStatus == 'approved') &&
+                booking.rideStatus != 'in_progress' &&
+                booking.rideStatus != 'completed')
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.cancel),
+                  label: const Text('Cancel Booking'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: () {
+                    cancelBooking(booking);
+                  },
+                ),
+              ),
           ],
         ),
       ),

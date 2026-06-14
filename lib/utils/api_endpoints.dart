@@ -18,11 +18,11 @@ class ApiEndpoints {
   static const String bookRide = '/bookings/book.php';
   static const String myBookings = '/bookings/my_bookings.php';
   static const String rideRequests = '/bookings/ride_requests.php';
-  static const String approveBooking = '/bookings/approve_booking.php';
   static const String rejectBooking = '/bookings/reject_booking.php';
   static const String updateBookingStatus = '/bookings/update_booking_status.php';
   static const String markRemainingNoShows = '/bookings/mark_remaining_no_shows.php';
 
   // Wallet
-  static const String wallet = '/wallet/index.php';
+  static const String getWallet = '/wallet/get_wallet.php';
+  static const String getWalletTransactions = '/wallet/get_wallet_transactions.php';
 }

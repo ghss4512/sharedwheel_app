@@ -19,6 +19,7 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
   final homeKey = GlobalKey<HomeScreenState>();
   final searchKey = GlobalKey<SearchRidesScreenState>();
   final bookingsKey = GlobalKey<MyBookingsScreenState>();
+  final walletKey = GlobalKey<WalletScreenState>();
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +27,7 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
       HomeScreen(key: homeKey),
       SearchRidesScreen(key: searchKey),
       MyBookingsScreen(key: bookingsKey),
-      const WalletScreen(),
+      WalletScreen(key: walletKey,),
       const ProfileScreen(),
     ];
     return Scaffold(
@@ -50,6 +51,9 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
               break;
             case 2:
               await bookingsKey.currentState?.refreshData();
+              break;
+            case 3:
+              await walletKey.currentState?.refreshData();
               break;
           }
         },

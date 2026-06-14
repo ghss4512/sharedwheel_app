@@ -1,161 +1,162 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
-import '../../widgets/primary_button.dart';
+import '../../models/wallet_model.dart';
+import '../../models/wallet_transaction_model.dart';
+import '../../services/wallet_service.dart';
+import '../../widgets/loading_widget.dart';
+import '../../utils/functions.dart';
 
-class WalletScreen extends StatelessWidget {
+class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
+
+  @override
+  State<WalletScreen> createState() => WalletScreenState();
+}
+
+class WalletScreenState extends State<WalletScreen> {
+  final WalletService walletService = WalletService();
+  WalletModel? wallet;
+  List<WalletTransactionModel> transactions = [];
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadWallet();
+  }
+
+  Future<void> refreshData() async {
+    await loadWallet();
+  }
+
+  Future<void> loadWallet() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      wallet = await walletService.getWallet();
+      transactions = await walletService.getTransactions();
+    } catch (e) {
+      debugPrint('Wallet Error: $e');
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.secondary,
       appBar: AppBar(
-        title: const Text('My Wallet',),
+        title: const Text('My Wallet'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // BALANCE CARD
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
+      body: RefreshIndicator(
+        onRefresh: loadWallet,
+        child: isLoading
+            ? const LoadingWidget()
+            : ListView(
+                padding: const EdgeInsets.all(16),
                 children: [
+                  buildBalanceCard(),
+                  const SizedBox(height: 25),
                   const Text(
-                    'Available Balance',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
-                    ),
+                    'Recent Transactions',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-
-                  const SizedBox(height: 10),
-
-                  const Text(
-                    'Rs. 12,500',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(height: 15),
+                  if (transactions.isEmpty)
+                    const Card(
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text('No transactions found'),
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 20),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                          ),
-
-                          icon: const Icon(
-                            Icons.add,
-                            color: AppColors.primary,
-                          ),
-
-                          label: const Text(
-                            'Add Funds',
-                            style: TextStyle(
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                          ),
-                          icon: const Icon(
-                            Icons.account_balance_wallet,
-                            color: AppColors.primary,
-                          ),
-                          label: const Text(
-                            'Withdraw',
-                            style: TextStyle(
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                  ...transactions.map(
+                    (transaction) => transactionCard(
+                      icon: getTransactionIcon(transaction.transactionType),
+                      title: formatTransactionType(transaction.transactionType),
+                      date: transaction.createdAt,
+                      amount:
+                          '${transaction.amount >= 0 ? '+' : ''}Rs. ${transaction.amount.toStringAsFixed(0)}',
+                      amountColor: transaction.amount >= 0
+                          ? AppColors.success
+                          : AppColors.danger,
+                    ),
                   ),
                 ],
               ),
+      ),
+    );
+  }
+
+  Widget buildBalanceCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        children: [
+          const Text(
+            'Available Balance',
+            style: TextStyle(color: Colors.white70, fontSize: 16),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Rs. ${Functions.formatCurrency(wallet!.balance, 0)}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
             ),
-
-            const SizedBox(height: 25),
-
-            // TRANSACTION HISTORY
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Recent Transactions',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                  ),
+                  icon: const Icon(Icons.add, color: AppColors.primary),
+                  label: const Text(
+                    'Add Funds',
+                    style: TextStyle(color: AppColors.primary),
+                  ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 15),
+              const SizedBox(width: 12),
 
-            transactionCard(
-              icon: Icons.directions_car,
-              title: 'Ride Payment',
-              date: '10 Jun 2026',
-              amount: '- Rs. 1,800',
-              amountColor: AppColors.danger,
-            ),
-
-            transactionCard(
-              icon: Icons.refresh,
-              title: 'Refund',
-              date: '08 Jun 2026',
-              amount: '+ Rs. 500',
-              amountColor: AppColors.success,
-            ),
-
-            transactionCard(
-              icon: Icons.card_giftcard,
-              title: 'Bonus Credit',
-              date: '05 Jun 2026',
-              amount: '+ Rs. 1,000',
-              amountColor: AppColors.success,
-            ),
-
-            transactionCard(
-              icon: Icons.account_balance_wallet,
-              title: 'Withdrawal',
-              date: '01 Jun 2026',
-              amount: '- Rs. 3,000',
-              amountColor: AppColors.danger,
-            ),
-
-            const SizedBox(height: 25),
-
-            PrimaryButton(
-              text: 'View Full History',
-              onPressed: () {
-                // Transaction History Screen
-
-              },
-            ),
-          ],
-        ),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                  ),
+                  icon: const Icon(
+                    Icons.account_balance_wallet,
+                    color: AppColors.primary,
+                  ),
+                  label: const Text(
+                    'Withdraw',
+                    style: TextStyle(color: AppColors.primary),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -166,36 +167,45 @@ class WalletScreen extends StatelessWidget {
     required String date,
     required String amount,
     required Color amountColor,
-
   }) {
     return Card(
-      margin: const EdgeInsets.only(
-        bottom: 12,
-      ),
-
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor:
-          AppColors.primary.withAlpha(25),
-          child: Icon(
-            icon,
-            color: AppColors.primary,
-          ),
+          backgroundColor: AppColors.primary.withAlpha(25),
+          child: Icon(icon, color: AppColors.primary),
         ),
         title: Text(title),
         subtitle: Text(date),
         trailing: Text(
           amount,
-          style: TextStyle(
-            color: amountColor,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: amountColor, fontWeight: FontWeight.bold),
         ),
       ),
     );
+  }
+
+  IconData getTransactionIcon(String type) {
+    switch (type) {
+      case 'deposit':
+        return Icons.add_circle;
+      case 'withdrawal':
+        return Icons.account_balance_wallet;
+      case 'ride_payment':
+        return Icons.directions_car;
+      case 'ride_refund':
+        return Icons.refresh;
+      case 'ride_earning':
+        return Icons.payments;
+      case 'no_show_penalty':
+        return Icons.warning;
+      default:
+        return Icons.receipt_long;
+    }
+  }
+
+  String formatTransactionType(String type) {
+    return type.replaceAll('_', ' ').toUpperCase();
   }
 }

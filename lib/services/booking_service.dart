@@ -50,13 +50,6 @@ class BookingService {
         .toList();
   }
 
-  Future<dynamic> approveBooking(int bookingId) async {
-    return await api.post(
-      endpoint: ApiEndpoints.approveBooking,
-      data: {'booking_id': bookingId.toString()},
-    );
-  }
-
   Future<dynamic> rejectBooking(int bookingId) async {
     return await api.post(
       endpoint: ApiEndpoints.rejectBooking,
@@ -65,10 +58,7 @@ class BookingService {
     );
   }
 
-  Future<dynamic> updateBookingStatus({
-    required int bookingId,
-    required String status,
-  }) async {
+  Future<dynamic> updateBookingStatus({required int bookingId, required String status,}) async {
     return await api.post(
       endpoint: ApiEndpoints.updateBookingStatus,
       data: {'booking_id': bookingId.toString(), 'status': status},
