@@ -3,7 +3,7 @@ import '../../constants/app_colors.dart';
 import 'home_screen.dart';
 import 'search_rides_screen.dart';
 import 'my_bookings_screen.dart';
-import 'wallet_screen.dart';
+import '../shared/wallet_screen.dart';
 import '../shared/profile_screen.dart';
 
 class PassengerDashboard extends StatefulWidget {

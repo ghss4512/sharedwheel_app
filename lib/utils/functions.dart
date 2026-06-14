@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
+import 'package:intl/intl.dart';
 
 class Functions {
   // 1. A private named constructor prevents instantiation
@@ -24,6 +25,26 @@ class Functions {
   static bool isValidEmail(String email) {
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     return emailRegex.hasMatch(email);
+  }
+
+  /// Format date only
+  static String formatDate(String dateTime) {
+    try {
+      final date = DateTime.parse(dateTime);
+      return DateFormat('dd MMM yyyy').format(date);
+    } catch (e) {
+      return dateTime;
+    }
+  }
+
+  /// Format date and time
+  static String formatDateTime(String dateTime) {
+    try {
+      final date = DateTime.parse(dateTime);
+      return DateFormat('dd MMM yyyy • hh:mm a').format(date);
+    } catch (e) {
+      return dateTime;
+    }
   }
 
   /// Converts a 24-hour time string (e.g., "14:30" or "24:00") to 12-hour AM/PM format
@@ -52,7 +73,7 @@ class Functions {
   }
 
   /// Helper to quickly show a sucess SnackBar
-  static void success(BuildContext context, String message,) {
+  static void success(BuildContext context, String message) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -75,7 +96,6 @@ class Functions {
     );
   }
 
-
   /// 1. Pushes a new screen onto the navigation stack (Keeps previous screen alive)
   static void navigateTo(BuildContext context, Widget targetScreen) {
     Navigator.push(
@@ -97,11 +117,13 @@ class Functions {
     // Handle empty or whitespace-only strings safely
     if (text.trim().isEmpty) return text;
 
-    return text.split(' ').map((word) {
-      if (word.isEmpty) return word;
-      // Capitalize the first letter and make the rest lowercase
-      return word[0].toUpperCase() + word.substring(1).toLowerCase();
-    }).join(' ');
+    return text
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return word;
+          // Capitalize the first letter and make the rest lowercase
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        })
+        .join(' ');
   }
-
 }

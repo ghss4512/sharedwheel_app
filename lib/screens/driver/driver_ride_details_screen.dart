@@ -16,8 +16,7 @@ class DriverRideDetailsScreen extends StatefulWidget {
   const DriverRideDetailsScreen({super.key, required this.ride});
 
   @override
-  State<DriverRideDetailsScreen> createState() =>
-      _DriverRideDetailsScreenState();
+  State<DriverRideDetailsScreen> createState() => _DriverRideDetailsScreenState();
 }
 
 class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
@@ -84,14 +83,14 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
         foregroundColor: Colors.white,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(10),
         children: [
           Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -103,19 +102,15 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-
                   const SizedBox(height: 10),
-
                   Text('Available Seats: ${ride.availableSeats}'),
                   const SizedBox(height: 10),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6,),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withAlpha(30),
+                      color: Colors.blue.withAlpha(80),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -338,7 +333,7 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
                 ),
           ),
 
-          const SizedBox(height: 25),
+          const SizedBox(height: 10),
 
           if (ride.rideStatus == 'scheduled')
             PrimaryButton(

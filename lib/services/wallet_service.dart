@@ -11,7 +11,6 @@ class WalletService {
     if (AppSession.userId == null) {
       return null;
     }
-
     final result = await api.get(
       endpoint: ApiEndpoints.getWallet,
       queryParameters: {'user_id': AppSession.userId.toString()},

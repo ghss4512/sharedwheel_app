@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sharedwheel_app/screens/passenger/my_bookings_screen.dart';
 import 'package:sharedwheel_app/screens/passenger/search_rides_screen.dart';
-import 'package:sharedwheel_app/screens/passenger/wallet_screen.dart';
+import 'package:sharedwheel_app/screens/shared/wallet_screen.dart';
 import 'package:sharedwheel_app/utils/functions.dart';
 import '../../constants/app_colors.dart';
 import '../../models/ride_model.dart';

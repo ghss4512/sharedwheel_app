@@ -4,6 +4,7 @@ import '../../models/wallet_model.dart';
 import '../../models/wallet_transaction_model.dart';
 import '../../services/wallet_service.dart';
 import '../../widgets/loading_widget.dart';
+import '../../widgets/empty_state_widget.dart';
 import '../../utils/functions.dart';
 
 class WalletScreen extends StatefulWidget {
@@ -34,8 +35,13 @@ class WalletScreenState extends State<WalletScreen> {
       isLoading = true;
     });
     try {
-      wallet = await walletService.getWallet();
-      transactions = await walletService.getTransactions();
+      final results = await Future.wait([
+        walletService.getWallet(),
+        walletService.getTransactions(),
+      ]);
+
+      wallet = results[0] as WalletModel?;
+      transactions = results[1] as List<WalletTransactionModel>;
     } catch (e) {
       debugPrint('Wallet Error: $e');
     }
@@ -71,20 +77,15 @@ class WalletScreenState extends State<WalletScreen> {
                   ),
                   const SizedBox(height: 15),
                   if (transactions.isEmpty)
-                    const Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Text('No transactions found'),
-                      ),
-                    ),
-
+                    EmptyStateWidget(message: 'No transactions found'),
                   ...transactions.map(
                     (transaction) => transactionCard(
                       icon: getTransactionIcon(transaction.transactionType),
                       title: formatTransactionType(transaction.transactionType),
-                      date: transaction.createdAt,
+                      description: transaction.description,
+                      date: Functions.formatDateTime(transaction.createdAt),
                       amount:
-                          '${transaction.amount >= 0 ? '+' : ''}Rs. ${transaction.amount.toStringAsFixed(0)}',
+                          '${transaction.amount >= 0 ? '+' : ''}Rs. ${Functions.formatCurrency(transaction.amount, 0)}',
                       amountColor: transaction.amount >= 0
                           ? AppColors.success
                           : AppColors.danger,
@@ -124,7 +125,9 @@ class WalletScreenState extends State<WalletScreen> {
             children: [
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    Functions.error(context, 'Coming soon');
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                   ),
@@ -140,7 +143,9 @@ class WalletScreenState extends State<WalletScreen> {
 
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    Functions.error(context, 'Coming soon');
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                   ),
@@ -164,6 +169,7 @@ class WalletScreenState extends State<WalletScreen> {
   Widget transactionCard({
     required IconData icon,
     required String title,
+    required String description,
     required String date,
     required String amount,
     required Color amountColor,
@@ -177,7 +183,10 @@ class WalletScreenState extends State<WalletScreen> {
           child: Icon(icon, color: AppColors.primary),
         ),
         title: Text(title),
-        subtitle: Text(date),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [if (description.isNotEmpty) Text(description), Text(date)],
+        ),
         trailing: Text(
           amount,
           style: TextStyle(color: amountColor, fontWeight: FontWeight.bold),
@@ -206,6 +215,30 @@ class WalletScreenState extends State<WalletScreen> {
   }
 
   String formatTransactionType(String type) {
-    return type.replaceAll('_', ' ').toUpperCase();
+    switch (type) {
+      case 'ride_payment':
+        return 'Ride Payment';
+
+      case 'ride_refund':
+        return 'Ride Refund';
+
+      case 'ride_earning':
+        return 'Ride Earnings';
+
+      case 'no_show_penalty':
+        return 'No Show Penalty';
+
+      case 'cancellation_fee':
+        return 'Cancellation Fee';
+
+      case 'withdrawal':
+        return 'Withdrawal';
+
+      case 'deposit':
+        return 'Deposit';
+
+      default:
+        return Functions.toProperCase(type.replaceAll('_', ' '));
+    }
   }
 }
