@@ -9,6 +9,7 @@ import '../../widgets/primary_button.dart';
 import 'dart:async';
 import '../../services/settings_service.dart';
 import '../../widgets/section_title.dart';
+import '../shared/submit_rating_screen.dart';
 
 class DriverRideDetailsScreen extends StatefulWidget {
   final RideModel ride;
@@ -16,7 +17,8 @@ class DriverRideDetailsScreen extends StatefulWidget {
   const DriverRideDetailsScreen({super.key, required this.ride});
 
   @override
-  State<DriverRideDetailsScreen> createState() => _DriverRideDetailsScreenState();
+  State<DriverRideDetailsScreen> createState() =>
+      _DriverRideDetailsScreenState();
 }
 
 class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
@@ -31,19 +33,13 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
   bool waitingExpiredShown = false;
 
   int get approvedCount =>
-      passengers
-          .where((p) => p.bookingStatus == 'approved')
-          .length;
+      passengers.where((p) => p.bookingStatus == 'approved').length;
 
   int get boardedCount =>
-      passengers
-          .where((p) => p.bookingStatus == 'boarded')
-          .length;
+      passengers.where((p) => p.bookingStatus == 'boarded').length;
 
   int get noShowCount =>
-      passengers
-          .where((p) => p.bookingStatus == 'no_show')
-          .length;
+      passengers.where((p) => p.bookingStatus == 'no_show').length;
 
   bool get canStartRide =>
       ride.rideStatus == 'waiting' && approvedCount == 0 && boardedCount > 0;
@@ -52,7 +48,6 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
       ride.rideStatus == 'waiting' && approvedCount == 0 && boardedCount == 0;
 
   bool get showTimer => ride.rideStatus == 'waiting' && approvedCount > 0;
-
 
   @override
   void initState() {
@@ -95,8 +90,7 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${Functions.toProperCase(ride.fromCity)} → ${Functions
-                        .toProperCase(ride.toCity)}',
+                    '${Functions.toProperCase(ride.fromCity)} → ${Functions.toProperCase(ride.toCity)}',
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -108,7 +102,10 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
                   Container(
                     width: double.infinity,
                     alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6,),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.blue.withAlpha(80),
                       borderRadius: BorderRadius.circular(20),
@@ -179,7 +176,6 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
 
           const SizedBox(height: 10),
 
-
           // Waiting Countdown Card
           if (showTimer)
             Card(
@@ -187,8 +183,10 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    Text('Waiting Time Remaining',
-                      style: TextStyle(fontWeight: FontWeight.bold),),
+                    Text(
+                      'Waiting Time Remaining',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 10),
                     Text(
                       formatTime(remainingSeconds),
@@ -268,69 +266,128 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
 
           if (passengers.isEmpty)
             const Card(
-              child: Padding(padding: EdgeInsets.all(16), child: Text('No passengers found'),),
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('No passengers found'),
+              ),
             ),
 
           ...passengers.map(
-                (passenger) =>
-                Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const CircleAvatar(
-                              child: Icon(Icons.person)),
-                          title: Text(
-                              Functions.toProperCase(passenger.fullName)),
-                          subtitle: Text(
-                            'Seats: ${passenger.seatsBooked}\n'
-                                'Phone: ${passenger.phone}',
-                          ),
-                          trailing: Text(
-                            passenger.bookingStatus.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 20,
-                              color: getStatusColor(passenger.bookingStatus),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+            (passenger) => Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const CircleAvatar(child: Icon(Icons.person)),
+                      title: Text(Functions.toProperCase(passenger.fullName)),
+                      subtitle: Text(
+                        'Seats: ${passenger.seatsBooked}\n'
+                        'Phone: ${passenger.phone}',
+                      ),
+                      trailing: Text(
+                        passenger.bookingStatus.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: getStatusColor(passenger.bookingStatus),
+                          fontWeight: FontWeight.bold,
                         ),
-
-                        if (ride.rideStatus == 'waiting' && passenger.bookingStatus == 'approved')
-                          Padding(
-                            padding: const EdgeInsets.only(top: 12),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: PrimaryButton(
-                                    text: 'Boarded',
-                                    onPressed: () {
-                                      confirmBoarded(passenger);
-                                    },
-                                  ),
-                                ),
-
-                                const SizedBox(width: 10),
-
-                                Expanded(
-                                  child: PrimaryButton(
-                                    text: 'No Show',
-                                    onPressed: () {
-                                      confirmNoShow(passenger);
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                      ],
+                      ),
                     ),
-                  ),
+
+                    if (ride.rideStatus == 'waiting' &&
+                        passenger.bookingStatus == 'approved')
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: PrimaryButton(
+                                text: 'Boarded',
+                                onPressed: () {
+                                  confirmBoarded(passenger);
+                                },
+                              ),
+                            ),
+
+                            const SizedBox(width: 10),
+
+                            Expanded(
+                              child: PrimaryButton(
+                                text: 'No Show',
+                                onPressed: () {
+                                  confirmNoShow(passenger);
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    if (ride.rideStatus == 'completed')
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: passenger.canRate
+                            ? SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  icon: const Icon(Icons.star),
+                                  label: const Text('Rate Passenger'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.amber,
+                                    foregroundColor: Colors.black,
+                                  ),
+                                  onPressed: () async {
+                                    final result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => SubmitRatingScreen(
+                                          rideId: ride.id,
+                                          reviewedUserId: passenger.passengerId,
+                                          userName: passenger.fullName,
+                                        ),
+                                      ),
+                                    );
+
+                                    if (result == true) {
+                                      await loadPassengers();
+                                    }
+                                  },
+                                ),
+                              )
+                            : Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withAlpha(25),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Rating Submitted',
+                                      style: TextStyle(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                      ),
+                  ],
                 ),
+              ),
+            ),
           ),
 
           const SizedBox(height: 10),
@@ -374,7 +431,6 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
                 confirmCompleteRide();
               },
             ),
-
         ],
       ),
     );
@@ -410,10 +466,7 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
     final waitingMinutes = await settingsService.getDriverWaitingTime();
     final waitingStart = DateTime.parse(ride.waitingStartedAt!);
 
-    final elapsedSeconds = DateTime
-        .now()
-        .difference(waitingStart)
-        .inSeconds;
+    final elapsedSeconds = DateTime.now().difference(waitingStart).inSeconds;
     final totalSeconds = waitingMinutes * 60;
     remainingSeconds = totalSeconds - elapsedSeconds;
     if (remainingSeconds < 0) {
@@ -494,21 +547,20 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
   Future<void> confirmStartJourney() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: const Text('Start Journey'),
-            content: const Text('Start traveling toward the pickup location?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Start'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Start Journey'),
+        content: const Text('Start traveling toward the pickup location?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
           ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Start'),
+          ),
+        ],
+      ),
     );
 
     if (confirmed == true) {
@@ -519,21 +571,20 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
   Future<void> confirmArrival() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: const Text('Arrival Confirmation'),
-            content: const Text('Have you reached the pickup location?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Confirm'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Arrival Confirmation'),
+        content: const Text('Have you reached the pickup location?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
           ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
     );
 
     if (confirmed == true) {
@@ -544,21 +595,20 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
   Future<void> confirmStartWaiting() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: const Text('Start Waiting'),
-            content: const Text('Passenger waiting timer will begin now.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Start Waiting'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Start Waiting'),
+        content: const Text('Passenger waiting timer will begin now.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
           ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Start Waiting'),
+          ),
+        ],
+      ),
     );
 
     if (confirmed == true) {
@@ -569,26 +619,25 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
   Future<void> confirmNoShow(PassengerModel passenger) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (_) =>
-          AlertDialog(
-            title: const Text('Mark No Show'),
-            content: Text('Mark ${passenger.fullName} as No Show?'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context, false);
-                },
-                child: const Text('Cancel'),
-              ),
-
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, true);
-                },
-                child: const Text('Confirm'),
-              ),
-            ],
+      builder: (_) => AlertDialog(
+        title: const Text('Mark No Show'),
+        content: Text('Mark ${passenger.fullName} as No Show?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, false);
+            },
+            child: const Text('Cancel'),
           ),
+
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
     );
 
     if (confirmed == true) {
@@ -599,26 +648,25 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
   Future<void> confirmBoarded(PassengerModel passenger) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (_) =>
-          AlertDialog(
-            title: const Text('Passenger Boarded'),
-            content: Text('Confirm ${passenger.fullName} boarded?'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context, false);
-                },
-                child: const Text('Cancel'),
-              ),
-
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, true);
-                },
-                child: const Text('Confirm'),
-              ),
-            ],
+      builder: (_) => AlertDialog(
+        title: const Text('Passenger Boarded'),
+        content: Text('Confirm ${passenger.fullName} boarded?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, false);
+            },
+            child: const Text('Cancel'),
           ),
+
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
     );
 
     if (confirmed == true) {
@@ -629,26 +677,25 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
   Future<void> confirmStartRide() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: const Text('Start Ride'),
-            content: const Text('Are all boarded passengers seated and ready?'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context, false);
-                },
-                child: const Text('Cancel'),
-              ),
-
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, true);
-                },
-                child: const Text('Start Ride'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Start Ride'),
+        content: const Text('Are all boarded passengers seated and ready?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, false);
+            },
+            child: const Text('Cancel'),
           ),
+
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+            child: const Text('Start Ride'),
+          ),
+        ],
+      ),
     );
 
     if (confirmed == true) {
@@ -659,26 +706,25 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
   Future<void> confirmCompleteRide() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: const Text('Complete Ride'),
-            content: const Text('Mark this ride as completed?'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context, false);
-                },
-                child: const Text('Cancel'),
-              ),
-
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, true);
-                },
-                child: const Text('Complete'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Complete Ride'),
+        content: const Text('Mark this ride as completed?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, false);
+            },
+            child: const Text('Cancel'),
           ),
+
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+            child: const Text('Complete'),
+          ),
+        ],
+      ),
     );
 
     if (confirmed == true) {
@@ -696,42 +742,41 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
     await showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) =>
-          AlertDialog(
-            title: const Text('Waiting Time Expired'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Boarded Passengers: '
-                      '$boardedPassengers',
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Pending Passengers: '
-                      '$approvedPassengers',
-                ),
-              ],
+      builder: (_) => AlertDialog(
+        title: const Text('Waiting Time Expired'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Boarded Passengers: '
+              '$boardedPassengers',
             ),
+            const SizedBox(height: 8),
+            Text(
+              'Pending Passengers: '
+              '$approvedPassengers',
+            ),
+          ],
+        ),
 
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  extendWaitingTime();
-                },
-                child: const Text('Extend 5 Min'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  markRemainingNoShows();
-                },
-                child: const Text('Mark Remaining No Shows'),
-              ),
-            ],
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              extendWaitingTime();
+            },
+            child: const Text('Extend 5 Min'),
           ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              markRemainingNoShows();
+            },
+            child: const Text('Mark Remaining No Shows'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -739,31 +784,30 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
     await showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) =>
-          AlertDialog(
-            title: const Text('No Shows Processed'),
-            content: Text(
-              '$message\n\n'
-                  'Would you like to start the ride now?',
-            ),
+      builder: (_) => AlertDialog(
+        title: const Text('No Shows Processed'),
+        content: Text(
+          '$message\n\n'
+          'Would you like to start the ride now?',
+        ),
 
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('Later'),
-              ),
-
-              ElevatedButton(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  await updateRideStatus('in_progress');
-                },
-                child: const Text('Start Ride'),
-              ),
-            ],
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Later'),
           ),
+
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await updateRideStatus('in_progress');
+            },
+            child: const Text('Start Ride'),
+          ),
+        ],
+      ),
     );
   }
 

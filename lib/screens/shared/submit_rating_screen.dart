@@ -159,9 +159,7 @@ class _SubmitRatingScreenState extends State<SubmitRatingScreen> {
                       border: OutlineInputBorder(),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   PrimaryButton(text: 'Submit Rating', onPressed: submitRating),
                 ],
               ),

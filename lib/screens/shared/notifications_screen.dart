@@ -1,110 +1,115 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
+import '../../models/notification_model.dart';
+import '../../services/notification_service.dart';
+import '../../utils/functions.dart';
+import '../../widgets/loading_widget.dart';
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
+
+  @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  final NotificationService notificationService = NotificationService();
+  List<NotificationModel> notifications = [];
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadNotifications();
+  }
+
+  Future<void> loadNotifications() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      notifications = await notificationService.getNotifications();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    if (!mounted) return;
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.secondary,
       appBar: AppBar(
-        title: const Text(
-          'Notifications',
-        ),
+        title: const Text('Notifications'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
 
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          notificationCard(
-            icon: Icons.check_circle,
-            iconColor: AppColors.success,
-            title: 'Ride Request Accepted',
-            message:
-            'Your booking for Lahore → Islamabad has been accepted.',
-            time: '5 minutes ago',
-          ),
-
-          notificationCard(
-            icon: Icons.account_balance_wallet,
-            iconColor: AppColors.primary,
-            title: 'Wallet Credited',
-            message:
-            'Rs. 500 has been added to your wallet.',
-            time: '1 hour ago',
-          ),
-
-          notificationCard(
-            icon: Icons.directions_car,
-            iconColor: Colors.orange,
-            title: 'New Ride Available',
-            message:
-            'A new ride matching your route has been posted.',
-            time: 'Today',
-          ),
-
-          notificationCard(
-            icon: Icons.info,
-            iconColor: Colors.purple,
-            title: 'System Notification',
-            message:
-            'Welcome to SharedWheel.',
-            time: 'Yesterday',
-          ),
-        ],
+      body: RefreshIndicator(
+        onRefresh: loadNotifications,
+        child: isLoading
+            ? const LoadingWidget()
+            : notifications.isEmpty
+            ? const Center(child: Text('No notifications found'))
+            : ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: notifications.length,
+                itemBuilder: (context, index) {
+                  final notification = notifications[index];
+                  return notificationCard(notification);
+                },
+              ),
       ),
     );
   }
 
-  Widget notificationCard({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String message,
-    required String time,
-  }) {
+  Widget notificationCard(NotificationModel notification) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      // color: notification.isRead
+      //     ? Colors.white
+      //     : AppColors.primary.withAlpha(15),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ListTile(
         contentPadding: const EdgeInsets.all(12),
         leading: CircleAvatar(
-          backgroundColor:
-          iconColor.withAlpha(38),
+          backgroundColor: AppColors.primary.withAlpha(30),
           child: Icon(
-            icon,
-            color: iconColor,
+            Icons.notifications,
+            color: notification.isRead ? Colors.grey : AppColors.primary,
           ),
         ),
 
         title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
+          notification.title,
+          style: TextStyle(
+            fontWeight: notification.isRead ? FontWeight.w500 : FontWeight.bold,
           ),
         ),
 
         subtitle: Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 4),
-            Text(message),
-            const SizedBox(height: 6),
+            Text(notification.message),
             Text(
-              time,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
+              Functions.formatDateTime(notification.createdAt),
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),
+
+        onTap: () async {
+          if (!notification.isRead) {
+            await notificationService.markRead(notification.id);
+            await loadNotifications();
+            // if (!mounted) return;
+            // Navigator.pop(context, true);
+          }
+        },
       ),
     );
   }

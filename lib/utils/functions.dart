@@ -104,6 +104,13 @@ class Functions {
     );
   }
 
+  static Future<dynamic> navigateToAsync(BuildContext context, Widget targetScreen) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => targetScreen),
+    );
+  }
+
   /// 2. Replaces the current screen with a new one (Destroys previous screen)
   static void replaceWith(BuildContext context, Widget targetScreen) {
     Navigator.pushReplacement(

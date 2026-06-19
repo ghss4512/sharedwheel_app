@@ -10,6 +10,8 @@ class PassengerModel {
 
   final String bookingStatus;
 
+  final bool canRate;
+
   PassengerModel({
     required this.bookingId,
     required this.passengerId,
@@ -18,6 +20,7 @@ class PassengerModel {
     required this.seatsBooked,
     required this.totalFare,
     required this.bookingStatus,
+    required this.canRate,
   });
 
   factory PassengerModel.fromJson(Map<String, dynamic> json) {
@@ -29,6 +32,7 @@ class PassengerModel {
       seatsBooked: int.parse(json['seats_booked'].toString()),
       totalFare: double.parse(json['total_fare'].toString()),
       bookingStatus: json['booking_status'] ?? 'approved',
+      canRate: json['can_rate'] == true || json['can_rate'].toString() == '1',
     );
   }
 }

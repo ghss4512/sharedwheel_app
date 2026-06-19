@@ -87,15 +87,13 @@ class MyRidesScreenState extends State<MyRidesScreen> {
                 '${Functions.toProperCase(ride.fromCity)} → ${Functions.toProperCase(ride.toCity)}',
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-      
               const SizedBox(height: 10),
-      
+              Text('📍 Pickup: ${ride.pickupLocation}'),
+              Text('🏁 Drop: ${ride.dropLocation}'),
               Text('📅 ${ride.travelDate}'),
               Text('⏰ ${Functions.convertTo12Hour(ride.travelTime)}'),
               Text('👥 ${ride.availableSeats}/${ride.totalSeats} Seats Available',),
-      
               const SizedBox(height: 10),
-      
               Text(
                 'Rs. ${Functions.formatCurrency(ride.farePerSeat, 0)}',
                 style: const TextStyle(
@@ -104,9 +102,7 @@ class MyRidesScreenState extends State<MyRidesScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-      
               const SizedBox(height: 10),
-      
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
-import 'home_screen.dart';
+import 'passenger_home_screen.dart';
 import 'search_rides_screen.dart';
 import 'my_bookings_screen.dart';
 import '../shared/wallet_screen.dart';
@@ -20,6 +20,7 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
   final searchKey = GlobalKey<SearchRidesScreenState>();
   final bookingsKey = GlobalKey<MyBookingsScreenState>();
   final walletKey = GlobalKey<WalletScreenState>();
+  final profileKey = GlobalKey<ProfileScreenState>();
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,7 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
       SearchRidesScreen(key: searchKey),
       MyBookingsScreen(key: bookingsKey),
       WalletScreen(key: walletKey,),
-      const ProfileScreen(),
+      ProfileScreen(key: profileKey,),
     ];
     return Scaffold(
       body: IndexedStack(index: currentIndex, children: screens),
@@ -55,6 +56,9 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
             case 3:
               await walletKey.currentState?.refreshData();
               break;
+            case 4:
+              await profileKey.currentState?.refreshData();
+              break;
           }
         },
 
@@ -62,10 +66,7 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
           BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Bookings'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet),
-            label: 'Wallet',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: 'Wallet',),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),

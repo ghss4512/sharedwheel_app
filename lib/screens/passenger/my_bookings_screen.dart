@@ -39,7 +39,6 @@ class MyBookingsScreenState extends State<MyBookingsScreen> {
     } catch (e) {
       debugPrint('Booking Error: $e');
     }
-
     if (!mounted) return;
     setState(() {
       isLoading = false;
@@ -217,31 +216,57 @@ class MyBookingsScreenState extends State<MyBookingsScreen> {
 
             if (booking.bookingStatus == 'completed' &&
                 booking.rideStatus == 'completed')
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.star),
-                  label: const Text('Rate Driver'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amber,
-                    foregroundColor: Colors.black,
+              if (booking.canRate)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.star),
+                    label: const Text('Rate Driver'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.amber,
+                      foregroundColor: Colors.black,
+                    ),
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => SubmitRatingScreen(
+                            rideId: booking.rideId,
+                            reviewedUserId: booking.driverId,
+                            userName: booking.driverName,
+                          ),
+                        ),
+                      );
+
+                      if (result == true) {
+                        await loadBookings();
+                      }
+                    },
                   ),
-                  onPressed: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SubmitRatingScreen(
-                          rideId: booking.rideId,
-                          reviewedUserId: booking.driverId,
-                          userName: booking.driverName,
+                )
+              else
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withAlpha(25),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.green),
+                      SizedBox(width: 8),
+                      Text(
+                        'Rating Submitted',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    );
-
-                    await loadBookings();
-                  },
+                    ],
+                  ),
                 ),
-              ),
           ],
         ),
       ),

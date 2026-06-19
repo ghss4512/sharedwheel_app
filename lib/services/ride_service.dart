@@ -7,7 +7,10 @@ import '../models/passenger_model.dart';
 class RideService {
   final ApiService api = ApiService();
 
-  Future<List<RideModel>> searchRides({String? fromCity, String? toCity,}) async {
+  Future<List<RideModel>> searchRides({
+    String? fromCity,
+    String? toCity,
+  }) async {
     final result = await api.get(
       endpoint: ApiEndpoints.searchRides,
       queryParameters: {'from_city': ?fromCity, 'to_city': ?toCity},
@@ -50,6 +53,8 @@ class RideService {
   Future<dynamic> postRide({
     required String fromCity,
     required String toCity,
+    required String pickupLocation,
+    required String dropLocation,
     required String travelDate,
     required String travelTime,
     required int totalSeats,
@@ -64,6 +69,8 @@ class RideService {
         'driver_id': AppSession.userId.toString(),
         'from_city': fromCity,
         'to_city': toCity,
+        'pickup_location': pickupLocation,
+        'drop_location': dropLocation,
         'travel_date': travelDate,
         'travel_time': travelTime,
         'total_seats': totalSeats.toString(),
@@ -88,7 +95,10 @@ class RideService {
         .toList();
   }
 
-  Future<dynamic> updateRideStatus({required int rideId, required String status,}) async {
+  Future<dynamic> updateRideStatus({
+    required int rideId,
+    required String status,
+  }) async {
     return await api.post(
       endpoint: ApiEndpoints.updateRideStatus,
       data: {'ride_id': rideId.toString(), 'status': status},
@@ -106,5 +116,17 @@ class RideService {
     }
 
     return RideModel.fromJson(result['ride']);
+  }
+
+  Future<List<RideModel>> getCompletedRides() async {
+    final result = await api.get(
+      endpoint: '${ApiEndpoints.completedRides}?driver_id=${AppSession.userId}',
+    );
+
+    if (result['success'] != true) {
+      return [];
+    }
+
+    return (result['rides'] as List).map((e) => RideModel.fromJson(e)).toList();
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// import 'package:sharedwheel_app/screens/admin/settings_screen.dart';
 import 'package:sharedwheel_app/screens/driver/driver_dashboard.dart';
 import 'package:sharedwheel_app/services/auth_service.dart';
 import 'package:sharedwheel_app/utils/app_session.dart';
@@ -7,6 +8,7 @@ import '../../widgets/custom_text_field.dart';
 import '../../widgets/primary_button.dart';
 import '../../utils/functions.dart';
 import '../../models/user_model.dart';
+import '../admin/admin_dashboard_screen.dart';
 import '../passenger/passenger_dashboard.dart';
 import 'register_screen.dart';
 
@@ -32,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
             margin: EdgeInsets.symmetric(horizontal: 15),
             decoration: BoxDecoration(
               border: BoxBorder.all(width: 3, color: Colors.blue),
-              borderRadius: BorderRadius.circular(50)
+              borderRadius: BorderRadius.circular(50),
             ),
             width: 500,
             child: SingleChildScrollView(
@@ -163,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
         if (!mounted) return;
 
         if (user.userType == 'admin') {
-          Functions.error(context, "Admin dashboard coming soon!!!");
+          Functions.replaceWith(context, AdminDashboardScreen());
         } else if (user.userType == 'passenger') {
           Functions.replaceWith(context, PassengerDashboard());
         } else if (user.userType == 'driver') {
@@ -171,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
     } catch (e) {
-        Functions.error(context, e.toString());
+      Functions.error(context, e.toString());
     }
 
     setState(() {

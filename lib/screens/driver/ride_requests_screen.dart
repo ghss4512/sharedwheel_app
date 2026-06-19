@@ -76,7 +76,7 @@ class RideRequestsScreenState extends State<RideRequestsScreen> {
           children: [
             Text(
               request.passengerName,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 5),
@@ -104,25 +104,41 @@ class RideRequestsScreenState extends State<RideRequestsScreen> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      // approve
-                      approveRequest(request);
+                      // Show dialogue and approve
+                      showConfirmationDialog(
+                        title: 'Approve Request',
+                        message:
+                            'Approve ${request.passengerName} booking request?',
+                        onConfirm: () {
+                          approveRequest(request);
+                        },
+                      );
                     },
-
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green.withAlpha(150),
+                      foregroundColor: Colors.white,
+                    ),
                     child: const Text('Approve'),
                   ),
                 ),
 
                 const SizedBox(width: 10),
-
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      // reject
-                      rejectRequest(request);
+                      // Show dialogue and reject
+                      showConfirmationDialog(
+                        title: 'Reject Request',
+                        message:
+                            'Reject ${request.passengerName} booking request?',
+                        onConfirm: () {
+                          rejectRequest(request);
+                        },
+                      );
                     },
-
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: Colors.red.withAlpha(150),
+                      foregroundColor: Colors.white,
                     ),
 
                     child: const Text('Reject'),
@@ -138,13 +154,15 @@ class RideRequestsScreenState extends State<RideRequestsScreen> {
 
   Future<void> approveRequest(BookingRequestModel request) async {
     try {
-      final result = await bookingService.updateBookingStatus(bookingId: request.bookingId, status: 'approved');
+      final result = await bookingService.updateBookingStatus(
+        bookingId: request.bookingId,
+        status: 'approved',
+      );
 
       if (!mounted) return;
 
       if (result['success'] == true) {
         Functions.success(context, result['message']);
-
         await loadRequests();
       } else {
         Functions.error(context, result['message']);
@@ -157,7 +175,11 @@ class RideRequestsScreenState extends State<RideRequestsScreen> {
 
   Future<void> rejectRequest(BookingRequestModel request) async {
     try {
-      final result = await bookingService.rejectBooking(request.bookingId);
+      // final result = await bookingService.rejectBooking(request.bookingId);
+      final result = await bookingService.updateBookingStatus(
+        bookingId: request.bookingId,
+        status: 'rejected',
+      );
 
       if (!mounted) return;
 
@@ -172,6 +194,40 @@ class RideRequestsScreenState extends State<RideRequestsScreen> {
       if (!mounted) return;
 
       Functions.error(context, e.toString());
+    }
+  }
+
+  Future<void> showConfirmationDialog({
+    required String title,
+    required String message,
+    required VoidCallback onConfirm,
+  }) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text('Cancel'),
+            ),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed == true) {
+      onConfirm();
     }
   }
 }

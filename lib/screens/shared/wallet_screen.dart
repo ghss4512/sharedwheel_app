@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sharedwheel_app/screens/shared/withdraw_request_screen.dart';
 import '../../constants/app_colors.dart';
 import '../../models/wallet_model.dart';
 import '../../models/wallet_transaction_model.dart';
@@ -6,6 +7,8 @@ import '../../services/wallet_service.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../utils/functions.dart';
+import 'deposit_request_screen.dart';
+import 'deposit_requests_screen.dart';
 
 class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
@@ -16,7 +19,7 @@ class WalletScreen extends StatefulWidget {
 
 class WalletScreenState extends State<WalletScreen> {
   final WalletService walletService = WalletService();
-  WalletModel? wallet;
+  WalletModel wallet = WalletModel(balance: 0);
   List<WalletTransactionModel> transactions = [];
   bool isLoading = false;
 
@@ -24,33 +27,6 @@ class WalletScreenState extends State<WalletScreen> {
   void initState() {
     super.initState();
     loadWallet();
-  }
-
-  Future<void> refreshData() async {
-    await loadWallet();
-  }
-
-  Future<void> loadWallet() async {
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      final results = await Future.wait([
-        walletService.getWallet(),
-        walletService.getTransactions(),
-      ]);
-
-      wallet = results[0] as WalletModel?;
-      transactions = results[1] as List<WalletTransactionModel>;
-    } catch (e) {
-      debugPrint('Wallet Error: $e');
-    }
-
-    if (!mounted) return;
-
-    setState(() {
-      isLoading = false;
-    });
   }
 
   @override
@@ -69,8 +45,31 @@ class WalletScreenState extends State<WalletScreen> {
             : ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
+                  // Balance Card
                   buildBalanceCard(),
+
                   const SizedBox(height: 25),
+
+                  Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.history),
+                      title: const Text('Deposit Requests'),
+                      subtitle: const Text(
+                        'View pending, approved and rejected deposits',
+                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Functions.navigateTo(
+                          context,
+                          const DepositRequestsScreen(),
+                        );
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  // Recent Transactions
                   const Text(
                     'Recent Transactions',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -111,9 +110,10 @@ class WalletScreenState extends State<WalletScreen> {
             'Available Balance',
             style: TextStyle(color: Colors.white70, fontSize: 16),
           ),
+
           const SizedBox(height: 10),
           Text(
-            'Rs. ${Functions.formatCurrency(wallet!.balance, 0)}',
+            'Rs. ${Functions.formatCurrency(wallet.balance, 0)}',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 32,
@@ -125,8 +125,17 @@ class WalletScreenState extends State<WalletScreen> {
             children: [
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    Functions.error(context, 'Coming soon');
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const DepositRequestScreen(),
+                      ),
+                    );
+
+                    if (result == true) {
+                      loadWallet();
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -143,8 +152,9 @@ class WalletScreenState extends State<WalletScreen> {
 
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    Functions.error(context, 'Coming soon');
+                  onPressed: () async {
+                    Functions.navigateToAsync(context, WithdrawRequestScreen());
+                    loadWallet();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -240,5 +250,32 @@ class WalletScreenState extends State<WalletScreen> {
       default:
         return Functions.toProperCase(type.replaceAll('_', ' '));
     }
+  }
+
+  Future<void> refreshData() async {
+    await loadWallet();
+  }
+
+  Future<void> loadWallet() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      final results = await Future.wait([
+        walletService.getWallet(),
+        walletService.getTransactions(),
+      ]);
+
+      wallet = results[0] as WalletModel;
+      transactions = results[1] as List<WalletTransactionModel>;
+    } catch (e) {
+      debugPrint('Wallet Error: $e');
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      isLoading = false;
+    });
   }
 }

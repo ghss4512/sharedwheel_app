@@ -29,6 +29,9 @@ class RideModel {
 
   final String? waitingStartedAt;
 
+  final double driverRating;
+  final int totalRatings;
+
   RideModel({
     required this.id,
     required this.driverId,
@@ -53,6 +56,8 @@ class RideModel {
     required this.rideStatus,
     required this.waitingStartedAt,
 
+    required this.driverRating,
+    required this.totalRatings,
   });
 
   factory RideModel.fromJson(Map<String, dynamic> json) {
@@ -77,6 +82,10 @@ class RideModel {
       totalRides: int.tryParse(json['total_rides'].toString(),) ?? 0,
       rideStatus: json['ride_status'] ?? '',
       waitingStartedAt: json['waiting_started_at'],
+      driverRating:
+      double.tryParse(json['rating'].toString()) ?? 5.0,
+      totalRatings:
+      int.tryParse(json['total_ratings'].toString()) ?? 0,
     );
   }
 }

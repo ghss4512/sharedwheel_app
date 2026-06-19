@@ -1,4 +1,3 @@
-import '../models/rating_model.dart';
 import '../services/api_service.dart';
 import '../utils/api_endpoints.dart';
 
@@ -31,12 +30,13 @@ class RatingService {
     );
   }
 
-  Future<bool> canRate({required int rideId, required int reviewerId}) async {
+  Future<bool> canRate({required int rideId, required int reviewerId, required int reviewedUserId,}) async {
     final result = await api.get(
       endpoint: ApiEndpoints.canRate,
       queryParameters: {
         'ride_id': rideId.toString(),
         'reviewer_id': reviewerId.toString(),
+        'reviewed_user_id': reviewedUserId.toString(),
       },
     );
     if (result['success'] != true) {

@@ -15,37 +15,40 @@ class DriverDashboard extends StatefulWidget {
 
 class _DriverDashboardState extends State<DriverDashboard> {
   int currentIndex = 0;
+  final homeKey = GlobalKey<DriverHomeScreenState>();
   final ridesKey = GlobalKey<MyRidesScreenState>();
   final requestsKey = GlobalKey<RideRequestsScreenState>();
   final walletKey = GlobalKey<WalletScreenState>();
-
+  final profileKey = GlobalKey<ProfileScreenState>();
   late final List<Widget> screens;
-
   @override
   void initState() {
     super.initState();
-
     screens = [
-      DriverHomeScreen(),
+      DriverHomeScreen(key: homeKey),
       MyRidesScreen(key: ridesKey),
       RideRequestsScreen(key: requestsKey),
       WalletScreen(key: walletKey),
-      ProfileScreen(),
+      ProfileScreen(key: profileKey),
     ];
   }
 
   void refreshCurrentTab(int index) {
     switch (index) {
+      case 0:
+        homeKey.currentState?.loadCounts();
+        break;
       case 1:
         ridesKey.currentState?.loadRides();
         break;
-
       case 2:
         requestsKey.currentState?.loadRequests();
         break;
-
       case 3:
         walletKey.currentState?.loadWallet();
+        break;
+      case 4:
+        profileKey.currentState?.loadProfile();
         break;
     }
   }
@@ -54,19 +57,14 @@ class _DriverDashboardState extends State<DriverDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(index: currentIndex, children: screens),
-
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
-
         selectedItemColor: AppColors.primary,
-
         type: BottomNavigationBarType.fixed,
-
         onTap: (index) {
           setState(() {
             currentIndex = index;
           });
-
           refreshCurrentTab(index);
         },
 

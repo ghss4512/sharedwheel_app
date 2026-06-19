@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+
 class AppSession {
   static int? userId;
   static String? userType;
@@ -34,9 +35,7 @@ class AppSession {
   }
 
   static Future<void> clearSession() async {
-
-    final prefs =
-    await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
 
     await prefs.clear();
 

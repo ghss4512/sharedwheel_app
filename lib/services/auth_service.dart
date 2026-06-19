@@ -8,7 +8,7 @@ class AuthService {
       endpoint: ApiEndpoints.login,
       data: {
         'login_input': loginInput,
-        'password': password,
+        'pass': password,
       },
     );
   }

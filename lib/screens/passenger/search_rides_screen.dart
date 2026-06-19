@@ -189,6 +189,8 @@ class SearchRidesScreenState extends State<SearchRidesScreen> {
               '${Functions.toProperCase(ride.fromCity)} → ${Functions.toProperCase(ride.toCity)}',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
+            Text('📍 Pickup: ${ride.pickupLocation}'),
+            Text('🏁 Drop: ${ride.dropLocation}'),
             const SizedBox(height: 8),
             Text('📅 ${ride.travelDate}'),
             Text('⏰ ${Functions.convertTo12Hour(ride.travelTime)}'),

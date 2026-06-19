@@ -64,10 +64,24 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                             ),
                           ),
                           SizedBox(height: 5),
-                          Text(
-                            '⭐ ${widget.ride.rating.toStringAsFixed(1)} Rating',
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${widget.ride.rating.toStringAsFixed(1)} (${widget.ride.totalRatings})',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
-                          Text('🚗 ${widget.ride.totalRides} Rides Completed'),
+                          const SizedBox(height: 4),
+                          Text('🚗 ${widget.ride.totalRides} rides completed'),
                         ],
                       ),
                     ),
@@ -82,7 +96,13 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
               children: [
                 Expanded(child: infoCard('📅', 'Date', widget.ride.travelDate)),
                 const SizedBox(width: 10),
-                Expanded(child: infoCard('⏰', 'Time', Functions.convertTo12Hour(widget.ride.travelTime))),
+                Expanded(
+                  child: infoCard(
+                    '⏰',
+                    'Time',
+                    Functions.convertTo12Hour(widget.ride.travelTime),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 10),
@@ -114,18 +134,33 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      '📍 ${Functions.toProperCase(widget.ride.fromCity)}',
+                    Text('📍 ${Functions.toProperCase(widget.ride.fromCity)}',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 8),
                     Center(child: Icon(Icons.arrow_right)),
                     SizedBox(height: 8),
-                    Text(
-                      '🎯 ${Functions.toProperCase(widget.ride.toCity)}',
+                    Text('🎯 ${Functions.toProperCase(widget.ride.toCity)}',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
+                ),
+              ),
+            ),
+
+            Card (
+              child: SizedBox(
+                width: double.infinity,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('📍 Pickup: ${widget.ride.pickupLocation}'),
+                      Text('🏁 Drop: ${widget.ride.dropLocation}'),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -141,7 +176,9 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.directions_car),
-                      title: Text(Functions.toProperCase(widget.ride.vehicleName)),
+                      title: Text(
+                        Functions.toProperCase(widget.ride.vehicleName),
+                      ),
                     ),
 
                     Divider(),
@@ -155,7 +192,9 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
 
                     ListTile(
                       leading: Icon(Icons.color_lens),
-                      title: Text(Functions.toProperCase(widget.ride.vehicleColor)),
+                      title: Text(
+                        Functions.toProperCase(widget.ride.vehicleColor),
+                      ),
                     ),
                   ],
                 ),
@@ -260,11 +299,11 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
   Widget infoCard(String icon, String title, String value) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(5),
         child: Column(
           children: [
             Text(icon, style: const TextStyle(fontSize: 28)),
-            const SizedBox(height: 8),
+            const SizedBox(height: 5),
             Text(title),
             const SizedBox(height: 5),
             Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),

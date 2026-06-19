@@ -27,6 +27,17 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
+
+
+	<key>NSCameraUsageDescription</key>
+    <string>SharedWheel needs camera access to capture verification documents.</string>
+
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>SharedWheel needs photo library access to select verification documents.</string>
+
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>SharedWheel may save verification images when required.</string>
+
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
