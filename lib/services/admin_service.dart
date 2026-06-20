@@ -2,6 +2,8 @@ import '../models/admin/dashboard_stats_model.dart';
 import '../models/admin/pending_deposit_model.dart';
 import '../models/admin/pending_withdrawal_model.dart';
 import '../models/admin/settings_model.dart';
+import '../models/ride_model.dart';
+import '../models/booking_model.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
 import '../utils/api_endpoints.dart';
@@ -75,6 +77,7 @@ class AdminService {
       pendingWithdrawals: 0,
       pendingVerifications: 0,
       activeRides: 0,
+      pendingBookings: 0,
     );
   }
 
@@ -152,11 +155,173 @@ class AdminService {
       endpoint: ApiEndpoints.getUserDetails,
       queryParameters: {'user_id': userId.toString()},
     );
-
     if (result['success'] != true) {
       return null;
     }
-
     return UserModel.fromJson(result['user']);
+  }
+
+  Future<List<RideModel>> getScheduledRides() async {
+    final result = await api.get(endpoint: ApiEndpoints.getScheduledRides);
+    if (result['success'] != true) {
+      return [];
+    }
+    return (result['rides'] as List)
+        .map((ride) => RideModel.fromJson(ride))
+        .toList();
+  }
+
+  Future<List<RideModel>> getActiveRides() async {
+    final result = await api.get(endpoint: ApiEndpoints.getActiveRides);
+    if (result['success'] != true) {
+      return [];
+    }
+    return (result['rides'] as List)
+        .map((ride) => RideModel.fromJson(ride))
+        .toList();
+  }
+
+  Future<List<RideModel>> getCancelledRides() async {
+    final result = await api.get(endpoint: ApiEndpoints.getCancelledRides);
+    if (result['success'] != true) {
+      return [];
+    }
+    return (result['rides'] as List)
+        .map((ride) => RideModel.fromJson(ride))
+        .toList();
+  }
+
+  Future<List<RideModel>> getCompletedRides() async {
+    final result = await api.get(endpoint: ApiEndpoints.getCompletedRides);
+    if (result['success'] != true) {
+      return [];
+    }
+    return (result['rides'] as List)
+        .map((ride) => RideModel.fromJson(ride))
+        .toList();
+  }
+
+  Future<dynamic> getRideDetails(int rideId) async {
+    return await api.get(
+      endpoint: ApiEndpoints.getRideDetails,
+      queryParameters: {'ride_id': rideId.toString()},
+    );
+  }
+
+  Future<dynamic> cancelRide(int rideId) async {
+    return await api.post(
+      endpoint: ApiEndpoints.cancelRide,
+      data: {'ride_id': rideId.toString()},
+    );
+  }
+
+  Future<dynamic> completeRide(int rideId) async {
+    return await api.post(
+      endpoint: ApiEndpoints.completeRide,
+      data: {'ride_id': rideId.toString()},
+    );
+  }
+
+  // Bookings
+  Future<List<BookingModel>> getPendingBookings() async {
+    final result = await api.get(endpoint: ApiEndpoints.getPendingBookings);
+    if (result['success'] != true) {
+      return [];
+    }
+    return (result['bookings'] as List)
+        .map((booking) => BookingModel.fromJson(booking))
+        .toList();
+  }
+
+  Future<List<BookingModel>> getApprovedBookings() async {
+    final result = await api.get(endpoint: ApiEndpoints.getApprovedBookings);
+    if (result['success'] != true) {
+      return [];
+    }
+    return (result['bookings'] as List)
+        .map((booking) => BookingModel.fromJson(booking))
+        .toList();
+  }
+
+  Future<List<BookingModel>> getCompletedBookings() async {
+    final result = await api.get(endpoint: ApiEndpoints.getCompletedBookings);
+    if (result['success'] != true) {
+      return [];
+    }
+
+    return (result['bookings'] as List)
+        .map((booking) => BookingModel.fromJson(booking))
+        .toList();
+  }
+
+  Future<List<BookingModel>> getCancelledBookings() async {
+    final result = await api.get(endpoint: ApiEndpoints.getCancelledBookings);
+    if (result['success'] != true) {
+      return [];
+    }
+
+    return (result['bookings'] as List)
+        .map((booking) => BookingModel.fromJson(booking))
+        .toList();
+  }
+
+  Future<List<BookingModel>> getNoShowBookings() async {
+    final result = await api.get(endpoint: ApiEndpoints.getNoShowBookings);
+    if (result['success'] != true) {
+      return [];
+    }
+
+    return (result['bookings'] as List)
+        .map((booking) => BookingModel.fromJson(booking))
+        .toList();
+  }
+
+  Future<dynamic> getBookingDetails(int bookingId) async {
+    return await api.get(
+      endpoint: ApiEndpoints.getBookingDetails,
+      queryParameters: {'booking_id': bookingId.toString()},
+    );
+  }
+
+  Future<dynamic> approveBooking(int bookingId) async {
+    return await api.post(
+      endpoint: ApiEndpoints.approveBooking,
+      data: {'booking_id': bookingId.toString()},
+    );
+  }
+
+  Future<dynamic> cancelBooking(int bookingId) async {
+    return await api.post(
+      endpoint: ApiEndpoints.cancelBooking,
+      data: {'booking_id': bookingId.toString()},
+    );
+  }
+
+  Future<dynamic> rejectBooking(int bookingId) async {
+    return await api.post(
+      endpoint: ApiEndpoints.rejectBooking,
+      data: {'booking_id': bookingId.toString()},
+    );
+  }
+
+  Future<dynamic> markNoShow(int bookingId) async {
+    return await api.post(
+      endpoint: ApiEndpoints.markNoShow,
+      data: {'booking_id': bookingId.toString()},
+    );
+  }
+
+  Future<dynamic> markBoarded(int bookingId) async {
+    return await api.post(
+      endpoint: ApiEndpoints.markBoarded,
+      data: {'booking_id': bookingId.toString()},
+    );
+  }
+
+  Future<dynamic> completeBooking(int bookingId) async {
+    return await api.post(
+      endpoint: ApiEndpoints.completeBooking,
+      data: {'booking_id': bookingId.toString()},
+    );
   }
 }

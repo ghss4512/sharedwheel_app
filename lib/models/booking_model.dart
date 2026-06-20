@@ -17,6 +17,9 @@ class BookingModel {
   final bool canRate;
   final String createdAt;
 
+  final String passengerName;
+  final String passengerPhone;
+
   BookingModel({
     required this.id,
     required this.rideId,
@@ -35,6 +38,9 @@ class BookingModel {
     required this.driverName,
     required this.canRate,
     required this.createdAt,
+
+    required this.passengerName,
+    required this.passengerPhone,
   });
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
@@ -56,6 +62,9 @@ class BookingModel {
       driverName: json['driver_name'] ?? '',
       canRate: json['can_rate'] == true || json['can_rate'].toString() == '1',
       createdAt: json['created_at'] ?? '',
+
+      passengerName: json['passenger_name'] ?? '',
+      passengerPhone: json['passenger_phone'] ?? '',
     );
   }
 }

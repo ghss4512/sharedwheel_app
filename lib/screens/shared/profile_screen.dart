@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sharedwheel_app/screens/auth/login_screen.dart';
+import 'package:sharedwheel_app/screens/shared/user_reviews_screen.dart';
 import '../../constants/app_colors.dart';
 import '../../models/profile_model.dart';
 
@@ -99,7 +100,23 @@ class ProfileScreenState extends State<ProfileScreen> {
                             ],
                           ),
 
-                          const SizedBox(height: 5),
+                          const SizedBox(height: 10),
+
+                          OutlinedButton.icon(
+                            icon: const Icon(Icons.reviews),
+                            label: const Text('View My Reviews'),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => UserReviewsScreen(
+                                    userId: AppSession.userId!,
+                                    userName: profile!.fullName,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
 
                           Container(
                             padding: const EdgeInsets.symmetric(

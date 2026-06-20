@@ -82,10 +82,15 @@ class RideService {
     );
   }
 
-  Future<List<PassengerModel>> getRidePassengers(int rideId) async {
+  Future<List<PassengerModel>> getRidePassengers(int rideId, int driverId) async {
+  //  Future<List<PassengerModel>> getRidePassengers(int rideId) async {
     final result = await api.get(
       endpoint: ApiEndpoints.ridePassengers,
-      queryParameters: {'ride_id': rideId.toString()},
+      // queryParameters: {'ride_id'   : rideId.toString(),},
+      queryParameters: {
+        'ride_id'   : rideId.toString(),
+        'driver_id' : driverId.toString(),
+      },
     );
     if (result['success'] != true) {
       return [];

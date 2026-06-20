@@ -96,6 +96,18 @@ class Functions {
     );
   }
 
+  /// Helper to quickly show a info SnackBar
+  static void info(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: AppColors.info,
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   /// 1. Pushes a new screen onto the navigation stack (Keeps previous screen alive)
   static void navigateTo(BuildContext context, Widget targetScreen) {
     Navigator.push(

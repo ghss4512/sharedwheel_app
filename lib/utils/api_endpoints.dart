@@ -3,25 +3,46 @@ class ApiEndpoints {
   static const String login = '/auth/login.php';
   static const String register = '/auth/register.php';
 
+
+
   // Admin Panel
   static const String dashboardStats = '/admin/dashboard_stats.php';
-
   static const String getPendingDeposits = '/admin/get_pending_deposits.php';
   static const String approveDeposit = '/wallet/approve_deposit.php';
   static const String rejectDeposit = '/wallet/reject_deposit.php';
-
   static const String depositHistory = '/admin/deposit_history.php';
   static const String withdrawalHistory = '/admin/withdrawal_history.php';
-
   static const String getPendingWithdrawals = '/admin/get_pending_withdrawals.php';
   static const String approveWithdrawal = '/wallet/approve_withdrawal.php';
   static const String rejectWithdrawal = '/wallet/reject_withdrawal.php';
-
-  // Users
+  // Users - Admin
   static const String getDrivers = '/admin/get_drivers.php';
   static const String getPassengers = '/admin/get_passengers.php';
   static const String updateUserStatus = '/admin/update_user_status.php';
   static const String getUserDetails = '/admin/get_user_details.php';
+  // Rides - Admin
+  static const String getActiveRides = '/admin/get_active_rides.php';
+  static const String getScheduledRides = '/admin/get_scheduled_rides.php';
+  static const String getCompletedRides = '/admin/get_completed_rides.php';
+  static const String getCancelledRides = '/admin/get_cancelled_rides.php';
+  static const String getRideDetails = '/admin/get_ride_details.php';
+  static const String completeRide = '/admin/complete_ride.php';
+  static const String cancelRide = '/admin/cancel_ride.php';
+  // Bookings - Admin
+  static const String getPendingBookings = '/admin/get_pending_bookings.php';
+  static const String getApprovedBookings = '/admin/get_approved_bookings.php';
+  static const String getCompletedBookings = '/admin/get_completed_bookings.php';
+  static const String getCancelledBookings = '/admin/get_cancelled_bookings.php';
+  static const String getNoShowBookings = '/admin/get_no_show_bookings.php';
+  static const String getBookingDetails = '/admin/get_booking_details.php';
+
+  static const String approveBooking = '/admin/approve_booking.php';
+  static const String rejectBooking = '/admin/reject_booking.php';
+  static const String cancelBooking = '/admin/cancel_booking.php';
+  static const String markNoShow = '/admin/mark_no_show.php';
+  static const String markBoarded = '/admin/mark_boarded.php';
+  static const String completeBooking = '/admin/complete_booking.php';
+
 
   // Settings
   static const String getAllSettings = '/settings/get_all_settings.php';

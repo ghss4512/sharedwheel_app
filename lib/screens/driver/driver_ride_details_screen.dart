@@ -32,22 +32,29 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
   bool isLoading = false;
   bool waitingExpiredShown = false;
 
-  int get approvedCount =>
-      passengers.where((p) => p.bookingStatus == 'approved').length;
+  int get approvedCount => passengers
+      .where((p) => p.bookingStatus.toLowerCase().trim() == 'approved')
+      .length;
 
-  int get boardedCount =>
-      passengers.where((p) => p.bookingStatus == 'boarded').length;
+  int get boardedCount => passengers
+      .where((p) => p.bookingStatus.toLowerCase().trim() == 'boarded')
+      .length;
 
-  int get noShowCount =>
-      passengers.where((p) => p.bookingStatus == 'no_show').length;
+  int get noShowCount => passengers
+      .where((p) => p.bookingStatus.toLowerCase().trim() == 'no_show')
+      .length;
 
   bool get canStartRide =>
-      ride.rideStatus == 'waiting' && approvedCount == 0 && boardedCount > 0;
+      ride.rideStatus.toLowerCase().trim() == 'waiting' &&
+      approvedCount == 0 &&
+      boardedCount > 0;
 
   bool get noPassengersBoarded =>
-      ride.rideStatus == 'waiting' && approvedCount == 0 && boardedCount == 0;
+      ride.rideStatus.toLowerCase().trim() == 'waiting' &&
+      approvedCount == 0 &&
+      boardedCount == 0;
 
-  bool get showTimer => ride.rideStatus == 'waiting' && approvedCount > 0;
+  bool get showTimer => ride.rideStatus.toLowerCase().trim() == 'waiting' && approvedCount > 0;
 
   @override
   void initState() {
@@ -55,7 +62,7 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
     ride = widget.ride;
     loadPassengers();
 
-    if (ride.rideStatus == 'waiting') {
+    if (ride.rideStatus.toLowerCase().trim() == 'waiting') {
       Future.microtask(() async {
         await initializeCountdown();
       });
@@ -442,7 +449,8 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
     });
 
     try {
-      passengers = await rideService.getRidePassengers(ride.id);
+      passengers = await rideService.getRidePassengers(ride.id, ride.driverId);
+      // passengers = await rideService.getRidePassengers(ride.id);
       if (ride.rideStatus == 'waiting' && approvedCount == 0) {
         timer?.cancel();
         remainingSeconds = 0;
@@ -463,9 +471,13 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
     if (ride.waitingStartedAt == null || ride.waitingStartedAt!.isEmpty) {
       return;
     }
+
+    await loadPassengers();
+    if (canStartRide) {
+      return;
+    }
     final waitingMinutes = await settingsService.getDriverWaitingTime();
     final waitingStart = DateTime.parse(ride.waitingStartedAt!);
-
     final elapsedSeconds = DateTime.now().difference(waitingStart).inSeconds;
     final totalSeconds = waitingMinutes * 60;
     remainingSeconds = totalSeconds - elapsedSeconds;

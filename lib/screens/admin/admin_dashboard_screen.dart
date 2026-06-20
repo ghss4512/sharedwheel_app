@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:sharedwheel_app/screens/admin/passengers_screen.dart';
-import 'package:sharedwheel_app/screens/admin/settings_screen.dart';
-import 'package:sharedwheel_app/screens/admin/withdrawal_history_screen.dart';
-import 'package:sharedwheel_app/widgets/section_title.dart';
 
+import 'passengers_screen.dart';
+import 'drivers_screen.dart';
+import 'verification_list_screen.dart';
+
+import 'active_rides_screen.dart';
+import 'completed_rides_screen.dart';
+import 'scheduled_rides_screen.dart';
+import 'cancelled_rides_screen.dart';
+
+import 'pending_bookings_screen.dart';
+
+import '../../widgets/section_title.dart';
 import '../../constants/app_colors.dart';
 import '../../models/admin/dashboard_stats_model.dart';
 import '../../services/admin_service.dart';
 import '../../utils/functions.dart';
 
+import 'withdrawal_history_screen.dart';
 import 'deposit_history_screen.dart';
-import 'drivers_screen.dart';
 import 'pending_deposits_screen.dart';
 import 'pending_withdrawals_screen.dart';
-import 'verification_list_screen.dart';
 
+import 'settings_screen.dart';
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
 
@@ -31,6 +39,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     pendingWithdrawals: 0,
     pendingVerifications: 0,
     activeRides: 0,
+    pendingBookings: 0
   );
 
   bool isLoading = true;
@@ -165,7 +174,23 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   value: stats.activeRides.toString(),
                   icon: Icons.directions_car,
                   index: 6,
-                  onTap: () {},
+                  onTap: () {
+                    Functions.navigateTo(context, ActiveRidesScreen());
+                    loadStats();
+                  },
+                ),
+
+                statCard(
+                  title: 'Bookings',
+                  value: stats.pendingBookings.toString(),
+                  icon: Icons.book_online,
+                  index: 1,
+                  onTap: () {
+                    Functions.navigateTo(
+                      context,
+                      const PendingBookingsScreen(),
+                    );
+                  },
                 ),
               ],
             ),
@@ -184,20 +209,67 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               },
             ),
 
-            // buildMenuCard(
-            //   icon: Icons.account_balance_wallet,
-            //   title: 'Pending Deposits',
-            //   onTap: () {
-            //     Functions.navigateTo(context, const PendingDepositsScreen());
-            //     loadStats();
-            //   },
-            // ),
+            buildMenuCard(
+              icon: Icons.person,
+              title: 'Drivers',
+              onTap: () {
+                Functions.navigateTo(
+                  context,
+                  const DriversScreen(),
+                );
+              },
+            ),
+
+            buildMenuCard(
+              icon: Icons.people,
+              title: 'Passengers',
+              onTap: () {
+                Functions.navigateTo(
+                  context,
+                  const PassengersScreen(),
+                );
+              },
+            ),
+
+            buildMenuCard(
+              icon: Icons.directions_car,
+              title: 'Active Rides',
+              onTap: () {
+                Functions.navigateTo(
+                  context,
+                  const ActiveRidesScreen(),
+                );
+              },
+            ),
+
+            buildMenuCard(
+              icon: Icons.account_balance_wallet,
+              title: 'Pending Deposits',
+              onTap: () {
+                Functions.navigateTo(
+                  context,
+                  const PendingDepositsScreen(),
+                );
+              },
+            ),
+
             buildMenuCard(
               icon: Icons.history,
               title: 'Deposit History',
               onTap: () {
                 Functions.navigateTo(context, const DepositHistoryScreen());
                 loadStats();
+              },
+            ),
+
+            buildMenuCard(
+              icon: Icons.payments,
+              title: 'Pending Withdrawals',
+              onTap: () {
+                Functions.navigateTo(
+                  context,
+                  const PendingWithdrawalsScreen(),
+                );
               },
             ),
 
@@ -209,14 +281,58 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               },
             ),
 
-            // buildMenuCard(
-            //   icon: Icons.payments,
-            //   title: 'Pending Withdrawals',
-            //   onTap: () {
-            //     Functions.navigateTo(context, const PendingWithdrawalsScreen());
-            //     loadStats();
-            //   },
-            // ),
+            buildMenuCard(
+              icon: Icons.directions_car,
+              title: 'Active Rides',
+              onTap: () {
+                Functions.navigateTo(context, const ActiveRidesScreen());
+              },
+            ),
+
+            buildMenuCard(
+              icon: Icons.schedule,
+              title: 'Scheduled Rides',
+              onTap: () {
+                Functions.navigateTo(
+                  context,
+                  const ScheduledRidesScreen(),
+                );
+              },
+            ),
+
+            buildMenuCard(
+              icon: Icons.cancel,
+              title: 'Cancelled Rides',
+              onTap: () {
+                Functions.navigateTo(
+                  context,
+                  const CancelledRidesScreen(),
+                );
+              },
+            ),
+
+            buildMenuCard(
+              icon: Icons.check_circle,
+              title: 'Completed Rides',
+              onTap: () {
+                Functions.navigateTo(
+                  context,
+                  const CompletedRidesScreen(),
+                );
+              },
+            ),
+
+            buildMenuCard(
+              icon: Icons.book_online,
+              title: 'Pending Bookings',
+              onTap: () {
+                Functions.navigateTo(
+                  context,
+                  const PendingBookingsScreen(),
+                );
+              },
+            ),
+
             buildMenuCard(
               icon: Icons.settings,
               title: 'Settings',

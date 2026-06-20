@@ -32,6 +32,11 @@ class RideModel {
   final double driverRating;
   final int totalRatings;
 
+  final int totalBookings;
+  final int bookedSeats;
+
+  final String driverPhone;
+
   RideModel({
     required this.id,
     required this.driverId,
@@ -49,6 +54,7 @@ class RideModel {
     required this.vehicleColor,
 
     required this.driverName,
+    required this.driverPhone,
     required this.profilePhoto,
     required this.rating,
     required this.totalRides,
@@ -58,6 +64,9 @@ class RideModel {
 
     required this.driverRating,
     required this.totalRatings,
+    required this.totalBookings,
+    required this.bookedSeats,
+
   });
 
   factory RideModel.fromJson(Map<String, dynamic> json) {
@@ -76,16 +85,17 @@ class RideModel {
       vehicleName: json['vehicle_name'] ?? '',
       vehicleNumber: json['vehicle_number'] ?? '',
       vehicleColor: json['vehicle_color'] ?? '',
-      driverName: json['full_name'] ?? '',
+      driverName: json['driver_name'] ?? '',
+      driverPhone: json['driver_phone'] ?? '',
       profilePhoto: json['profile_photo'] ?? '',
       rating: double.tryParse(json['rating'].toString(),) ?? 0,
       totalRides: int.tryParse(json['total_rides'].toString(),) ?? 0,
       rideStatus: json['ride_status'] ?? '',
       waitingStartedAt: json['waiting_started_at'],
-      driverRating:
-      double.tryParse(json['rating'].toString()) ?? 5.0,
-      totalRatings:
-      int.tryParse(json['total_ratings'].toString()) ?? 0,
+      driverRating: double.tryParse(json['rating'].toString()) ?? 5.0,
+      totalRatings: int.tryParse(json['total_ratings'].toString()) ?? 0,
+      totalBookings: int.tryParse(json['total_bookings'].toString()) ?? 0,
+      bookedSeats: int.tryParse(json['booked_seats'].toString()) ?? 0,
     );
   }
 }

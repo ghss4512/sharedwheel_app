@@ -8,6 +8,8 @@ class DashboardStatsModel {
   final int pendingVerifications;
   final int activeRides;
 
+  final int pendingBookings;
+
   DashboardStatsModel({
     required this.drivers,
     required this.passengers,
@@ -15,6 +17,7 @@ class DashboardStatsModel {
     required this.pendingWithdrawals,
     required this.pendingVerifications,
     required this.activeRides,
+    required this.pendingBookings,
   });
 
   factory DashboardStatsModel.fromJson(Map<String, dynamic> json) {
@@ -25,6 +28,7 @@ class DashboardStatsModel {
       pendingWithdrawals: int.tryParse(json['pending_withdrawals'].toString()) ?? 0,
       pendingVerifications: int.tryParse(json['pending_verifications'].toString()) ?? 0,
       activeRides: int.tryParse(json['active_rides'].toString()) ?? 0,
+      pendingBookings: int.tryParse(json['pending_bookings'].toString(),) ?? 0,
     );
   }
 }

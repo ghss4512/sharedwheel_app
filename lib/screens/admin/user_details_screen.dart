@@ -216,9 +216,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   Widget buildActionButton() {
     return ElevatedButton.icon(
       onPressed: updateStatus,
-
       icon: Icon(user!.status == 'active' ? Icons.block : Icons.check),
-
       label: Text(user!.status == 'active' ? 'Suspend User' : 'Activate User'),
     );
   }
