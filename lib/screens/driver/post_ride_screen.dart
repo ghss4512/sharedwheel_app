@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+
 import '../../constants/app_colors.dart';
+import '../../models/city_model.dart';
 import '../../models/vehicle_model.dart';
+import '../../services/city_service.dart';
+import '../../services/ride_service.dart';
 import '../../services/vehicle_service.dart';
+import '../../utils/functions.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/primary_button.dart';
-import '../../services/ride_service.dart';
-import '../../utils/functions.dart';
+import '../../widgets/searchable_city_dropdown.dart';
 
 class PostRideScreen extends StatefulWidget {
   const PostRideScreen({super.key});
@@ -15,8 +19,12 @@ class PostRideScreen extends StatefulWidget {
 }
 
 class _PostRideScreenState extends State<PostRideScreen> {
-  final fromCityController = TextEditingController();
-  final toCityController = TextEditingController();
+  final CityService cityService = CityService();
+  List<CityModel> cities = [];
+  CityModel? selectedFromCity;
+  CityModel? selectedToCity;
+  double? farePerSeat;
+
   final pickupLocationController = TextEditingController();
   final dropLocationController = TextEditingController();
   final travelDateController = TextEditingController();
@@ -34,6 +42,7 @@ class _PostRideScreenState extends State<PostRideScreen> {
   void initState() {
     super.initState();
     loadVehicles();
+    loadCities();
   }
 
   @override
@@ -48,18 +57,32 @@ class _PostRideScreenState extends State<PostRideScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
-          spacing: 5,
+          spacing: 15,
           children: [
-            CustomTextField(
+            SearchableCityDropdown(
               label: 'From City',
               icon: Icons.location_on,
-              controller: fromCityController,
+              cities: cities,
+              selectedCity: selectedFromCity,
+              onChanged: (city) {
+                setState(() async {
+                  selectedFromCity = city;
+                  await loadFare();
+                });
+              },
             ),
 
-            CustomTextField(
+            SearchableCityDropdown(
               label: 'To City',
               icon: Icons.flag,
-              controller: toCityController,
+              cities: cities,
+              selectedCity: selectedToCity,
+              onChanged: (city) {
+                setState(() async {
+                  selectedToCity = city;
+                  await loadFare();
+                });
+              },
             ),
 
             CustomTextField(
@@ -96,14 +119,25 @@ class _PostRideScreenState extends State<PostRideScreen> {
               controller: totalSeatsController,
               keyboardType: TextInputType.number,
             ),
-
-            CustomTextField(
-              label: 'Fare Per Seat',
-              icon: Icons.currency_exchange,
-              controller: fareController,
-              keyboardType: TextInputType.number,
+            Card(
+              color: Colors.green.shade50,
+              child: ListTile(
+                leading: const Icon(Icons.currency_exchange, color: Colors.green),
+                title: const Text('Fare Per Seat'),
+                subtitle: Text(
+                  farePerSeat == null
+                      ? 'Select From & To City to get fare'
+                      : 'Rs. ${farePerSeat!.toStringAsFixed(0)}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
             ),
+
             const SizedBox(height: 15),
+
             DropdownButtonFormField<VehicleModel>(
               initialValue: selectedVehicle,
               decoration: const InputDecoration(
@@ -169,14 +203,11 @@ class _PostRideScreenState extends State<PostRideScreen> {
   }
 
   Future<void> postRide() async {
-    if (fromCityController.text.trim().isEmpty ||
-        toCityController.text.trim().isEmpty ||
-        pickupLocationController.text.trim().isEmpty ||
+    if (pickupLocationController.text.trim().isEmpty ||
         dropLocationController.text.trim().isEmpty ||
         travelDateController.text.trim().isEmpty ||
         travelTimeController.text.trim().isEmpty ||
-        totalSeatsController.text.trim().isEmpty ||
-        fareController.text.trim().isEmpty) {
+        totalSeatsController.text.trim().isEmpty) {
       Functions.error(context, 'Please fill all fields');
       return;
     }
@@ -185,19 +216,35 @@ class _PostRideScreenState extends State<PostRideScreen> {
       Functions.error(context, 'Please add a vehicle first.');
       return;
     }
+    if (selectedFromCity == null) {
+      Functions.error(context, 'Please select From City.');
+      return;
+    }
+
+    if (selectedToCity == null) {
+      Functions.error(context, 'Please select To City.');
+      return;
+    }
+
+    if (farePerSeat == null) {
+      Functions.error(context, 'Fare is not configured for this route.');
+      return;
+    }
+
     setState(() {
       isLoading = true;
     });
     try {
       final result = await rideService.postRide(
-        fromCity: fromCityController.text.trim(),
-        toCity: toCityController.text.trim(),
+        vehicleId: selectedVehicle!.id,
+        fromCityId: selectedFromCity!.id,
+        toCityId: selectedToCity!.id,
         pickupLocation: pickupLocationController.text.trim(),
         dropLocation: dropLocationController.text.trim(),
         travelDate: travelDateController.text.trim(),
         travelTime: travelTimeController.text.trim(),
         totalSeats: int.parse(totalSeatsController.text),
-        farePerSeat: double.parse(fareController.text),
+        farePerSeat: farePerSeat!,
         vehicleName: selectedVehicle!.vehicleName,
         vehicleNumber: selectedVehicle!.vehicleNumber,
         vehicleColor: selectedVehicle!.vehicleColor,
@@ -229,6 +276,35 @@ class _PostRideScreenState extends State<PostRideScreen> {
         orElse: () => vehicles.first,
       );
     }
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> loadCities() async {
+    cities = await cityService.getActiveCities();
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> loadFare() async {
+    if (selectedFromCity == null || selectedToCity == null) {
+      farePerSeat = null;
+      return;
+    }
+
+    final result = await rideService.getRideFare(
+      fromCityId: selectedFromCity!.id,
+      toCityId: selectedToCity!.id,
+    );
+
+    if (result['success'] == true) {
+      farePerSeat = double.tryParse(result['fare']['fare_per_seat'].toString()) ?? 0;
+    } else {
+      farePerSeat = null;
+    }
+
     if (mounted) {
       setState(() {});
     }

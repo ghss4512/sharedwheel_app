@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../constants/app_colors.dart';
 
 class Functions {
   // 1. A private named constructor prevents instantiation
@@ -72,7 +74,7 @@ class Functions {
     }
   }
 
-  /// Helper to quickly show a sucess SnackBar
+  /// Helper to quickly show a success SnackBar
   static void success(BuildContext context, String message) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -109,14 +111,17 @@ class Functions {
   }
 
   /// 1. Pushes a new screen onto the navigation stack (Keeps previous screen alive)
-  static void navigateTo(BuildContext context, Widget targetScreen) {
-    Navigator.push(
+  static Future<dynamic> navigateTo(BuildContext context, Widget targetScreen) {
+    return Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => targetScreen),
     );
   }
 
-  static Future<dynamic> navigateToAsync(BuildContext context, Widget targetScreen) async {
+  static Future<dynamic> navigateToAsync(
+    BuildContext context,
+    Widget targetScreen,
+  ) async {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => targetScreen),
@@ -144,5 +149,160 @@ class Functions {
           return word[0].toUpperCase() + word.substring(1).toLowerCase();
         })
         .join(' ');
+  }
+
+  // Helper functions for launching external apps
+  static Future<void> launchPhone({required String phone}) async {
+    final uri = Uri.parse('tel:$phone');
+
+    if (!await launchUrl(uri)) {
+      throw Exception('Could not launch $uri');
+    }
+  }
+
+  // Helper functions for launching external apps
+  static Future<void> launchEmail({
+    required String email,
+    required String subject,
+  }) async {
+    final uri = Uri(
+      scheme: 'mailto',
+      path: email,
+      queryParameters: {'subject': subject},
+    );
+
+    if (!await launchUrl(uri)) {
+      throw Exception('Could not launch $uri');
+    }
+  }
+
+  // Helper functions for launching external apps
+  static Future<void> launchWhatsApp({
+    required String whatsappNumber,
+    required String message,
+  }) async {
+    final cleanedNumber = whatsappNumber
+        .replaceAll('+', '')
+        .replaceAll(' ', '');
+
+    final uri = Uri.parse(
+      'https://wa.me/$cleanedNumber?text=${Uri.encodeComponent(message)}',
+    );
+
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch WhatsApp');
+    }
+  }
+
+  static Future<bool> confirm(
+    BuildContext context,
+    String message, {
+    String title = 'Confirmation',
+    String confirmText = 'Yes',
+    String cancelText = 'No',
+    Color confirmColor = Colors.red,
+    IconData icon = Icons.help_outline,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: Row(
+          children: [
+            Icon(icon, color: Colors.orange),
+            const SizedBox(width: 10),
+            Expanded(child: Text(title)),
+          ],
+        ),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(cancelText),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: confirmColor,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(confirmText),
+          ),
+        ],
+      ),
+    );
+
+    return result ?? false;
+  }
+
+  static Future<void> infoDialog(
+      BuildContext context,
+      String message, {
+        String title = 'Information',
+      }) async {
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Future<void> successDialog(
+      BuildContext context,
+      String message,
+      ) async {
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.green),
+            SizedBox(width: 10),
+            Text('Success'),
+          ],
+        ),
+        content: Text(message),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Future<void> errorDialog(
+      BuildContext context,
+      String message,
+      ) async {
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.error, color: Colors.red),
+            SizedBox(width: 10),
+            Text('Error'),
+          ],
+        ),
+        content: Text(message),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 }

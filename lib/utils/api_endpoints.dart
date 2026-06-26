@@ -2,6 +2,9 @@ class ApiEndpoints {
   // Authentication
   static const String login = '/auth/login.php';
   static const String register = '/auth/register.php';
+  static const String forgotPassword = '/auth/forgot_password.php';
+  static const String verifyResetOtp = '/auth/verify_reset_otp.php';
+  static const String resetPassword = '/auth/reset_password.php';
 
 
 
@@ -43,6 +46,30 @@ class ApiEndpoints {
   static const String markBoarded = '/admin/mark_boarded.php';
   static const String completeBooking = '/admin/complete_booking.php';
 
+  // Complaints - Admin
+  static const String getComplaints = '/admin/get_complaints.php';
+  static const String updateComplaintStatus = '/admin/update_complaint_status.php';
+  static const String addComplaintLog = '/admin/add_complaint_log.php';
+
+  // Ride Fare Management - Admin
+  static const String rideFares = '/admin/ride_fares.php';
+  static const String saveRideFare = '/admin/save_ride_fare.php';
+  static const String deleteRideFare = '/admin/delete_ride_fare.php';
+  static const String toggleRideFareStatus = '/admin/toggle_ride_fare_status.php';
+  static const String getRideFare = '/rides/get_ride_fare.php';
+
+  // Cities - Admin
+  static const String cities = '/admin/cities.php';
+  static const String activeCities = '/cities/active_cities.php';
+  static const String saveCity = '/admin/save_city.php';
+  static const String deleteCity = '/admin/delete_city.php';
+  static const String toggleCityStatus = '/admin/toggle_city_status.php';
+  // Messages
+  static const String sendMessage = '/messages/send_message.php';
+  static const String getConversation = '/messages/get_conversation.php';
+  static const String conversations = '/messages/conversations.php';
+  static const String markMessagesRead = '/messages/mark_messages_read.php';
+  static const String deleteMessage = '/messages/delete_message.php';
 
   // Settings
   static const String getAllSettings = '/settings/get_all_settings.php';
@@ -78,7 +105,7 @@ class ApiEndpoints {
   static const String ridePassengers = '/rides/ride_passengers.php';
   static const String updateRideStatus = '/rides/update_ride_status.php';
   static const String completedRides = '/rides/completed_rides.php';
-
+  static const String completedRideDetails = '/rides/completed_ride_details.php';
   static const String pendingRequestsCount = '/rides/pending_requests_count.php';
   static const String activeRidesCount = '/rides/active_rides_count.php';
   static const String completedRidesCount = '/rides/completed_rides_count.php';
@@ -94,6 +121,7 @@ class ApiEndpoints {
   static const String activeBookingsCount = '/bookings/active_bookings_count.php';
   static const String completedBookingsCount = '/bookings/completed_bookings_count.php';
 
+
   // Wallet
   static const String getWallet = '/wallet/get_wallet.php';
   static const String getWalletTransactions = '/wallet/get_wallet_transactions.php';
@@ -103,9 +131,16 @@ class ApiEndpoints {
   static const String myDepositRequests = '/wallet/my_deposit_requests.php';
   static const String myWithdrawRequests = '/wallet/my_withdraw_requests.php';
 
+  // Passengers
+  static const String passengerActiveRides = '/passenger/active_rides.php';
+  static const String passengerCompletedRides = '/passenger/completed_rides.php';
+
 
   // Profile
   static const String getProfile = '/profile/get_profile.php';
+  static const String updateProfile = '/profile/update_profile.php';
+  static const String changePassword = '/profile/change_password.php';
+  static const String uploadProfilePhoto = '/profile/upload_photo.php';
 
   // Ratings & reviews
   static const String submitRating = '/ratings/submit_rating.php';
@@ -116,4 +151,9 @@ class ApiEndpoints {
   static const String getNotifications = '/notifications/get_notifications.php';
   static const String markNotificationRead = '/notifications/mark_notification_read.php';
   static const String unreadNotificationCount = '/notifications/unread_notification_count.php';
+
+  // Complaints
+  static const String createComplaint = '/complaints/create_complaint.php';
+  static const String myComplaints = '/complaints/my_complaints.php';
+  static const String complaintDetails = '/complaints/complaint_details.php';
 }

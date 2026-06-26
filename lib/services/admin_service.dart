@@ -78,6 +78,20 @@ class AdminService {
       pendingVerifications: 0,
       activeRides: 0,
       pendingBookings: 0,
+      completedRides: 0,
+      activeUsers: 0,
+      cancelledRides: 0,
+      pendingComplaints: 0,
+      scheduledRides: 0,
+      suspendedUsers: 0,
+      totalBookings: 0,
+      totalComplaints: 0,
+      totalDeposits: 0,
+      totalWithdrawals: 0,
+      unverifiedDrivers: 0,
+      verifiedDrivers: 0,
+      totalRideFares: 0,
+      totalCities: 0,
     );
   }
 

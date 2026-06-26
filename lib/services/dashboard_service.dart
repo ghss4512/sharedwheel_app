@@ -8,7 +8,7 @@ class DashboardService {
   Future<int> getPendingRequestsCount() async {
     final result = await api.get(
       endpoint:
-      '${ApiEndpoints.pendingRequestsCount}?driver_id=${AppSession.userId}',
+          '${ApiEndpoints.pendingRequestsCount}?driver_id=${AppSession.userId}',
     );
 
     return result['count'] ?? 0;
@@ -17,7 +17,7 @@ class DashboardService {
   Future<int> getActiveRidesCount() async {
     final result = await api.get(
       endpoint:
-      '${ApiEndpoints.activeRidesCount}?driver_id=${AppSession.userId}',
+          '${ApiEndpoints.activeRidesCount}?driver_id=${AppSession.userId}',
     );
 
     return result['count'] ?? 0;
@@ -26,9 +26,21 @@ class DashboardService {
   Future<int> getCompletedRidesCount() async {
     final result = await api.get(
       endpoint:
-      '${ApiEndpoints.completedRidesCount}?driver_id=${AppSession.userId}',
+          '${ApiEndpoints.completedRidesCount}?driver_id=${AppSession.userId}',
     );
 
     return result['count'] ?? 0;
+  }
+
+  Future<Map<String, dynamic>?> getUpcomingRide() async {
+    final result = await api.get(
+      endpoint: '/dashboard/upcoming_ride.php?driver_id=${AppSession.userId}',
+    );
+
+    if (result['success'] != true) {
+      return null;
+    }
+
+    return result['ride'];
   }
 }

@@ -60,7 +60,7 @@ class _CancelledRidesScreenState extends State<CancelledRidesScreen> {
       filteredRides = rides.where((ride) {
         return ride.fromCity.toLowerCase().contains(keyword) ||
             ride.toCity.toLowerCase().contains(keyword) ||
-            ride.driverName.toLowerCase().contains(keyword);
+            ride.driverName!.toLowerCase().contains(keyword);
       }).toList();
     });
   }

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:sharedwheel_app/models/ride_model.dart';
-import 'package:sharedwheel_app/screens/passenger/my_bookings_screen.dart';
-import 'package:sharedwheel_app/widgets/section_title.dart';
 import '../../constants/app_colors.dart';
+import '../../models/ride_model.dart';
 import '../../widgets/primary_button.dart';
 import '../../utils/functions.dart';
 import '../../utils/app_session.dart';
 import '../../services/booking_service.dart';
+import '../../widgets/section_title.dart';
+import 'my_bookings_screen.dart';
 
 class RideDetailsScreen extends StatefulWidget {
   final RideModel ride;
@@ -57,7 +57,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.ride.driverName.toUpperCase(),
+                            widget.ride.driverName!.toUpperCase(),
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,

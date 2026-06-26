@@ -1,8 +1,7 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sharedwheel_app/utils/app_config.dart';
+import '../../utils/app_config.dart';
 import '../../services/driver_verification_service.dart';
 import '../../constants/app_colors.dart';
 

@@ -1,10 +1,9 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:sharedwheel_app/screens/driver/driver_dashboard.dart';
-import 'login_screen.dart';
-import '../../utils/app_session.dart';
+
 import '../../utils/functions.dart';
-import '../passenger/passenger_dashboard.dart';
+import '../public/welcome_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -17,7 +16,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    checkLogin();
+    // checkLogin()
+    welcomeScreen();
   }
 
   @override
@@ -64,21 +64,27 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
-  Future<void> checkLogin() async {
+  Future<void> welcomeScreen() async {
     await Future.delayed(const Duration(seconds: 2));
-    final bool loggedIn = await AppSession.loadSession();
     if (!mounted) return;
-    if (loggedIn) {
-      if (AppSession.userType == 'passenger') {
-        Functions.replaceWith(context, PassengerDashboard());
-      } else if (AppSession.userType == 'driver') {
-        Functions.replaceWith(context, DriverDashboard());
-      } else if (AppSession.userType == 'admin') {
-        // AdminDashboard();
-      }
-    } else {
-      Functions.replaceWith(context, LoginScreen());
-      // AppNavigator.replace(context, const LoginScreen());
-    }
+    Functions.replaceWith(context, const WelcomeScreen());
   }
+
+  // Future<void> checkLogin() async {
+  //   await Future.delayed(const Duration(seconds: 2));
+  //   final bool loggedIn = await AppSession.loadSession();
+  //   if (!mounted) return;
+  //   if (loggedIn) {
+  //     if (AppSession.userType == 'passenger') {
+  //       Functions.replaceWith(context, PassengerDashboardScreen());
+  //     } else if (AppSession.userType == 'driver') {
+  //       Functions.replaceWith(context, DriverDashboardScreen());
+  //     } else if (AppSession.userType == 'admin') {
+  //       AdminDashboardScreen();
+  //     }
+  //   } else {
+  //     Functions.replaceWith(context, LoginScreen());
+  //     // AppNavigator.replace(context, const LoginScreen());
+  //   }
+  // }
 }

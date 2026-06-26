@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:sharedwheel_app/utils/functions.dart';
+
+import '../../models/city_model.dart';
 import '../../models/ride_model.dart';
+import '../../services/city_service.dart';
 import '../../services/ride_service.dart';
+import '../../utils/functions.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../widgets/loading_widget.dart';
+import '../../widgets/searchable_city_dropdown.dart';
 import 'ride_details_screen.dart';
 
 class SearchRidesScreen extends StatefulWidget {
@@ -14,12 +18,24 @@ class SearchRidesScreen extends StatefulWidget {
 }
 
 class SearchRidesScreenState extends State<SearchRidesScreen> {
+  List<CityModel> cities = [];
+  final CityService cityService = CityService();
+  CityModel? selectedFromCity;
+  CityModel? selectedToCity;
+
   final TextEditingController fromController = TextEditingController();
   final TextEditingController toController = TextEditingController();
   final RideService rideService = RideService();
   List<RideModel> rides = [];
   bool isLoading = false;
   DateTime? selectedDate;
+
+  @override
+  initState() {
+    super.initState();
+    searchRides();
+    loadCities();
+  }
 
   Future<void> pickDate() async {
     final DateTime? pickedDate = await showDatePicker(
@@ -46,8 +62,9 @@ class SearchRidesScreenState extends State<SearchRidesScreen> {
     });
     try {
       final result = await rideService.searchRides(
-        fromCity: fromController.text.trim(),
-        toCity: toController.text.trim(),
+        fromCityId: selectedFromCity?.id,
+        toCityId: selectedToCity?.id,
+        travelDate: selectedDate,
       );
 
       if (!mounted) return;
@@ -66,11 +83,18 @@ class SearchRidesScreenState extends State<SearchRidesScreen> {
     });
   }
 
+  Future<void> loadCities() async {
+    cities = await cityService.getActiveCities();
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Search Rides ${rides.length}'),
+        title: Text('Search Rides'),
         backgroundColor: const Color(0xFF0D6EFD),
         foregroundColor: Colors.white,
       ),
@@ -86,32 +110,57 @@ class SearchRidesScreenState extends State<SearchRidesScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
+                  spacing: 10,
                   children: [
-                    TextField(
-                      controller: fromController,
-                      decoration: InputDecoration(
-                        labelText: 'From City',
-                        prefixIcon: const Icon(Icons.location_on),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                    SearchableCityDropdown(
+                      label: 'From City',
+                      icon: Icons.location_on,
+                      cities: cities,
+                      selectedCity: selectedFromCity,
+                      onChanged: (city) {
+                        setState(() {
+                          selectedFromCity = city;
+                        });
+                      },
                     ),
 
-                    const SizedBox(height: 15),
-
-                    TextField(
-                      controller: toController,
-                      decoration: InputDecoration(
-                        labelText: 'To City',
-                        prefixIcon: const Icon(Icons.flag),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                    SearchableCityDropdown(
+                      label: 'To City',
+                      icon: Icons.flag,
+                      cities: cities,
+                      selectedCity: selectedToCity,
+                      onChanged: (city) {
+                        setState(() {
+                          selectedToCity = city;
+                        });
+                      },
                     ),
 
-                    const SizedBox(height: 15),
+                    // TextField(
+                    //   controller: fromController,
+                    //   decoration: InputDecoration(
+                    //     labelText: 'From City',
+                    //     prefixIcon: const Icon(Icons.location_on),
+                    //     border: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(12),
+                    //     ),
+                    //   ),
+                    // ),
+                    //
+                    // const SizedBox(height: 15),
+                    //
+                    // TextField(
+                    //   controller: toController,
+                    //   decoration: InputDecoration(
+                    //     labelText: 'To City',
+                    //     prefixIcon: const Icon(Icons.flag),
+                    //     border: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(12),
+                    //     ),
+                    //   ),
+                    // ),
+
+                    // const SizedBox(height: 15),
                     InkWell(
                       onTap: pickDate,
                       child: Container(

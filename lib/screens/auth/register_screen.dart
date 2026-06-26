@@ -26,18 +26,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       body: SafeArea(
         child: Center(
-          child: Container(
-            margin: EdgeInsets.all(5),
+          child: SizedBox(
             width: 500,
-            decoration: BoxDecoration(
-              border: BoxBorder.all(width: 5, color: Colors.blue),
-              borderRadius: BorderRadius.circular(50),
-            ),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(15),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
               child: Column(
                 children: [
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 3),
                   Container(
                     height: 90,
                     width: 90,
@@ -52,33 +47,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
-
                   const Text(
                     'Join SharedWheel',
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
-
-                  const SizedBox(height: 10),
-
+                  const SizedBox(height: 5),
                   const Text(
                     'Create your account and start travelling smarter',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey),
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   CustomTextField(label: 'Full Name', icon: Icons.person),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   CustomTextField(label: 'Phone Number', icon: Icons.phone, keyboardType: TextInputType.phone,),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   CustomTextField(label: 'Password', icon: Icons.lock, obscureText: true,),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   CustomTextField(label: 'Confirm Password', icon: Icons.lock_outline, obscureText: true,),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 8),
+                  Text("Register As", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
                   Row(
                     children: [
-                      Text("Register As", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
                       Expanded(
                         child: ChoiceChip(
                           label: const Text('🚶 Passenger'),
@@ -96,9 +87,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                       ),
-
-                      const SizedBox(width: 12),
-
                       Expanded(
                         child: ChoiceChip(
                           label: const Text('🚗 Driver'),
@@ -119,15 +107,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 10),
 
-                  PrimaryButton(text: 'Create Account',
-                    onPressed: () {
-                      // Registration API call will go here
-                    },
+                  SizedBox(
+                    width: double.infinity, // Forces full width
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue, // Background color
+                        foregroundColor: Colors.white, // Text and icon color
+                      ),
+                      onPressed: () {
+                        //API Code
+                      },
+                      child: const Text('Create Account'),
+                    ),
                   ),
 
-                  const SizedBox(height: 25),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

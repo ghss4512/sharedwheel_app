@@ -7,6 +7,7 @@ class ProfileModel {
   final String userType;
   final String profilePhoto;
   final String city;
+  final String address;
 
   final double rating;
   final int totalRatings;
@@ -26,6 +27,7 @@ class ProfileModel {
     required this.userType,
     required this.profilePhoto,
     required this.city,
+    required this.address,
     required this.rating,
     required this.totalRatings,
     required this.totalRides,
@@ -44,6 +46,7 @@ class ProfileModel {
       userType: json['user_type'] ?? '',
       profilePhoto: json['profile_photo']?.toString() ?? '',
       city: json['city']?.toString() ?? '',
+      address: json['address']?.toString() ?? '',
       rating: double.parse(json['rating'].toString()),
       totalRatings: int.parse(json['total_ratings'].toString()),
       totalRides: int.parse(json['total_rides'].toString()),

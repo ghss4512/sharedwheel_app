@@ -154,12 +154,17 @@ class _SubmitRatingScreenState extends State<SubmitRatingScreen> {
                   TextField(
                     controller: reviewController,
                     maxLines: 4,
+                    maxLength: 300,
+                    textCapitalization: TextCapitalization.sentences,
                     decoration: const InputDecoration(
-                      labelText: 'Review (Optional)',
+                      labelText: 'Share your experience (Optional)',
+                      hintText: 'What did you like about this?',
                       border: OutlineInputBorder(),
                     ),
                   ),
+
                   const SizedBox(height: 20),
+
                   PrimaryButton(text: 'Submit Rating', onPressed: submitRating),
                 ],
               ),

@@ -1,21 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import '../../constants/app_colors.dart';
 import '../../models/passenger_model.dart';
 import '../../models/ride_model.dart';
 import '../../services/booking_service.dart';
 import '../../services/ride_service.dart';
+import '../../services/settings_service.dart';
 import '../../utils/functions.dart';
 import '../../widgets/primary_button.dart';
-import 'dart:async';
-import '../../services/settings_service.dart';
 import '../../widgets/section_title.dart';
+import '../shared/chat_screen.dart';
+import '../shared/create_complaint_screen.dart';
 import '../shared/submit_rating_screen.dart';
 
 class DriverRideDetailsScreen extends StatefulWidget {
   final RideModel ride;
-
   const DriverRideDetailsScreen({super.key, required this.ride});
-
   @override
   State<DriverRideDetailsScreen> createState() =>
       _DriverRideDetailsScreenState();
@@ -31,30 +33,28 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
   List<PassengerModel> passengers = [];
   bool isLoading = false;
   bool waitingExpiredShown = false;
-
   int get approvedCount => passengers
       .where((p) => p.bookingStatus.toLowerCase().trim() == 'approved')
       .length;
-
   int get boardedCount => passengers
       .where((p) => p.bookingStatus.toLowerCase().trim() == 'boarded')
       .length;
-
   int get noShowCount => passengers
       .where((p) => p.bookingStatus.toLowerCase().trim() == 'no_show')
       .length;
-
+  int get completedCount => passengers
+      .where((p) => p.bookingStatus.toLowerCase().trim() == 'completed')
+      .length;
   bool get canStartRide =>
       ride.rideStatus.toLowerCase().trim() == 'waiting' &&
       approvedCount == 0 &&
       boardedCount > 0;
-
   bool get noPassengersBoarded =>
       ride.rideStatus.toLowerCase().trim() == 'waiting' &&
       approvedCount == 0 &&
       boardedCount == 0;
-
-  bool get showTimer => ride.rideStatus.toLowerCase().trim() == 'waiting' && approvedCount > 0;
+  bool get showTimer =>
+      ride.rideStatus.toLowerCase().trim() == 'waiting' && approvedCount > 0;
 
   @override
   void initState() {
@@ -87,94 +87,104 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(10),
         children: [
+          // Ride Summery
+          SectionTitle(title: "Ride Summery"),
           Card(
+            elevation: 3,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '${Functions.toProperCase(ride.fromCity)} → ${Functions.toProperCase(ride.toCity)}',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    spacing: 5,
+                    children: [
+                      const Icon(
+                        Icons.route,
+                        color: AppColors.primary,
+                        size: 28,
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      Expanded(
+                        child: Text(
+                          '${Functions.toProperCase(ride.fromCity)} → '
+                          '${Functions.toProperCase(ride.toCity)}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: infoItem(
+                          Icons.calendar_month,
+                          'Date',
+                          ride.travelDate,
+                        ),
+                      ),
+                      Expanded(
+                        child: infoItem(
+                          Icons.access_time,
+                          'Time',
+                          ride.travelTime,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10),
-                  Text('Available Seats: ${ride.availableSeats}'),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: infoItem(
+                          Icons.event_seat,
+                          'Seats',
+                          ride.availableSeats.toString(),
+                        ),
+                      ),
+                      Expanded(
+                        child: infoItem(
+                          Icons.currency_exchange_sharp,
+                          'Fare',
+                          'Rs. ${ride.farePerSeat}',
+                        ),
+                      ),
+                    ],
+                  ),
+
                   const SizedBox(height: 10),
+
                   Container(
                     width: double.infinity,
-                    alignment: Alignment.center,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
-                      vertical: 6,
+                      vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withAlpha(80),
-                      borderRadius: BorderRadius.circular(20),
+                      color: getRideStatusColor(ride.rideStatus).withAlpha(30),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Text(
-                      ride.rideStatus.toUpperCase(),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    child: Center(
+                      child: Text(
+                        ride.rideStatus.toUpperCase(),
+                        style: TextStyle(
+                          color: getRideStatusColor(ride.rideStatus),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 15),
-
-          SectionTitle(title: "Passenger Summery"),
-
-          // Passenger Summary Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Column(
-                    children: [
-                      Text(
-                        '$approvedCount',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Text('Approved'),
-                    ],
-                  ),
-
-                  Column(
-                    children: [
-                      Text(
-                        '$boardedCount',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Text('Boarded'),
-                    ],
-                  ),
-
-                  Column(
-                    children: [
-                      Text(
-                        '$noShowCount',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Text('No Show'),
-                    ],
                   ),
                 ],
               ),
@@ -182,6 +192,118 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
           ),
 
           const SizedBox(height: 10),
+
+          // Ride Progress
+          SectionTitle(title: 'Ride Progress'),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  buildProgressStep('Scheduled', ride.rideStatus, 'scheduled'),
+                  buildProgressStep('Enroute', ride.rideStatus, 'enroute'),
+                  buildProgressStep('Arrived', ride.rideStatus, 'arrived'),
+                  buildProgressStep('Waiting', ride.rideStatus, 'waiting'),
+                  buildProgressStep(
+                    'In Progress',
+                    ride.rideStatus,
+                    'in_progress',
+                  ),
+
+                  buildProgressStep(
+                    'Completed',
+                    ride.rideStatus,
+                    'completed',
+                    isLast: true,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          // Passenger Summary Card
+          SectionTitle(title: "Passenger Summery"),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                spacing: 10,
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withAlpha(25),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            '$approvedCount',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          const Text('Approved'),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withAlpha(25),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            '$boardedCount',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.success,
+                            ),
+                          ),
+                          const Text('Boarded'),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withAlpha(25),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            '$noShowCount',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.danger,
+                            ),
+                          ),
+                          const Text('No Show'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
 
           // Waiting Countdown Card
           if (showTimer)
@@ -206,7 +328,7 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
                 ),
               ),
             ),
-
+          // Passenger boarded
           if (noPassengersBoarded)
             Card(
               child: Padding(
@@ -258,19 +380,16 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
                     ),
 
                     const SizedBox(height: 5),
-
                     Text('$boardedCount passenger(s) boarded'),
-
                     Text('$noShowCount passenger(s) no show'),
                   ],
                 ),
               ),
             ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
 
           SectionTitle(title: 'Passengers'),
-
           if (passengers.isEmpty)
             const Card(
               child: Padding(
@@ -287,23 +406,143 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: const CircleAvatar(child: Icon(Icons.person)),
-                      title: Text(Functions.toProperCase(passenger.fullName)),
-                      subtitle: Text(
-                        'Seats: ${passenger.seatsBooked}\n'
-                        'Phone: ${passenger.phone}',
-                      ),
-                      trailing: Text(
-                        passenger.bookingStatus.toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: getStatusColor(passenger.bookingStatus),
-                          fontWeight: FontWeight.bold,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CircleAvatar(
+                          radius: 24,
+                          child: Text(
+                            passenger.fullName.substring(0, 1).toUpperCase(),
+                          ),
+                        ),
+
+                        const SizedBox(width: 12),
+
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                Functions.toProperCase(passenger.fullName),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+
+                              Text(
+                                passenger.phone,
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+
+                              const SizedBox(height: 4),
+
+                              Text('Seats Booked: ${passenger.seatsBooked}'),
+                            ],
+                          ),
+                        ),
+
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: getStatusColor(
+                              passenger.bookingStatus,
+                            ).withAlpha(30),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            passenger.bookingStatus.toUpperCase(),
+                            style: TextStyle(
+                              color: getStatusColor(passenger.bookingStatus),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            icon: const Icon(Icons.chat),
+                            label: const Text('Message'),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ChatScreen(
+                                    rideId: ride.id,
+                                    otherUserId: passenger.passengerId,
+                                    otherUserName: passenger.fullName,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+
+                        const SizedBox(width: 8),
+
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            icon: const Icon(Icons.call),
+                            label: const Text('Call'),
+                            onPressed: () {
+                              // launch dialer later
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    if (passenger.bookingStatus == 'approved' ||
+                        passenger.bookingStatus == 'boarded' ||
+                        passenger.bookingStatus == 'completed' ||
+                        passenger.bookingStatus == 'no_show')
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: TextButton.icon(
+                              icon: const Icon(
+                                Icons.report_problem,
+                                color: Colors.red,
+                                size: 18,
+                              ),
+                              label: const Text(
+                                'Report Passenger',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                              onPressed: () async {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => CreateComplaintScreen(
+                                      rideId: ride.id,
+                                      againstUserId: passenger.passengerId,
+                                      againstUserName: passenger.fullName,
+                                    ),
+                                  ),
+                                );
+
+                                if (!mounted) return;
+                                if (result == true) {
+                                  Functions.success(context, 'Complaint submitted successfully.',);
+                                }
+                              },
+                            ),
+                          ),
                         ),
                       ),
-                    ),
 
                     if (ride.rideStatus == 'waiting' &&
                         passenger.bookingStatus == 'approved')
@@ -397,47 +636,100 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
             ),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 5),
 
-          if (ride.rideStatus == 'scheduled')
-            PrimaryButton(
-              text: 'Start Journey',
-              onPressed: () {
-                confirmStartJourney();
-              },
+          // Ride Action Buttons
+          SectionTitle(title: 'Ride Actions'),
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  if (ride.rideStatus == 'scheduled')
+                    SizedBox(
+                      width: double.infinity,
+                      child: PrimaryButton(
+                        text: '🚗 Start Journey',
+                        onPressed: () {
+                          confirmStartJourney();
+                        },
+                      ),
+                    ),
 
-          if (ride.rideStatus == 'enroute')
-            PrimaryButton(
-              text: 'I Have Arrived',
-              onPressed: () {
-                updateRideStatus('arrived');
-              },
-            ),
+                  if (ride.rideStatus == 'enroute')
+                    SizedBox(
+                      width: double.infinity,
+                      child: PrimaryButton(
+                        text: '📍 I Have Arrived',
+                        onPressed: () {
+                          updateRideStatus('arrived');
+                        },
+                      ),
+                    ),
 
-          if (ride.rideStatus == 'arrived')
-            PrimaryButton(
-              text: 'Start Waiting',
-              onPressed: () {
-                confirmStartWaiting();
-              },
-            ),
+                  if (ride.rideStatus == 'arrived')
+                    SizedBox(
+                      width: double.infinity,
+                      child: PrimaryButton(
+                        text: '⏳ Start Waiting',
+                        onPressed: () {
+                          confirmStartWaiting();
+                        },
+                      ),
+                    ),
 
-          if (canStartRide)
-            PrimaryButton(
-              text: 'Start Ride',
-              onPressed: () {
-                confirmStartRide();
-              },
-            ),
+                  if (canStartRide)
+                    SizedBox(
+                      width: double.infinity,
+                      child: PrimaryButton(
+                        text: '▶ Start Ride',
+                        onPressed: () {
+                          confirmStartRide();
+                        },
+                      ),
+                    ),
 
-          if (ride.rideStatus == 'in_progress')
-            PrimaryButton(
-              text: 'Complete Ride',
-              onPressed: () {
-                confirmCompleteRide();
-              },
+                  if (ride.rideStatus == 'in_progress')
+                    SizedBox(
+                      width: double.infinity,
+                      child: PrimaryButton(
+                        text: '✅ Complete Ride',
+                        onPressed: () {
+                          confirmCompleteRide();
+                        },
+                      ),
+                    ),
+
+                  if (ride.rideStatus == 'completed')
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withAlpha(20),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.check_circle, color: Colors.green),
+                          SizedBox(width: 8),
+                          Text(
+                            'Ride Completed',
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             ),
+          ),
         ],
       ),
     );
@@ -468,7 +760,7 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
   }
 
   Future<void> initializeCountdown() async {
-    if (ride.waitingStartedAt == null || ride.waitingStartedAt!.isEmpty) {
+    if (ride.waitingStartedAt == null || ride.waitingStartedAt.toString().isEmpty) {
       return;
     }
 
@@ -477,7 +769,7 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
       return;
     }
     final waitingMinutes = await settingsService.getDriverWaitingTime();
-    final waitingStart = DateTime.parse(ride.waitingStartedAt!);
+    final waitingStart = DateTime.parse(ride.waitingStartedAt.toString());
     final elapsedSeconds = DateTime.now().difference(waitingStart).inSeconds;
     final totalSeconds = waitingMinutes * 60;
     remainingSeconds = totalSeconds - elapsedSeconds;
@@ -509,9 +801,10 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
       if (!mounted) return;
 
       if (result['success'] == true) {
-        final message = result['message'];
 
+        final message = result['message'];
         await refreshRide();
+
         if (ride.rideStatus == 'waiting') {
           await loadPassengers();
           await initializeCountdown();
@@ -889,5 +1182,145 @@ class _DriverRideDetailsScreenState extends State<DriverRideDetailsScreen> {
     final remaining = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:'
         '${remaining.toString().padLeft(2, '0')}';
+  }
+
+  Widget infoItem(IconData icon, String title, String value) {
+    return Row(
+      spacing: 5,
+      children: [
+        Icon(icon, size: 18, color: AppColors.primary),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+
+              Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Color getRideStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'scheduled':
+        return Colors.blue;
+      case 'enroute':
+        return Colors.orange;
+      case 'arrived':
+        return Colors.deepOrange;
+      case 'waiting':
+        return Colors.amber;
+      case 'in_progress':
+        return Colors.green;
+      case 'completed':
+        return Colors.green;
+
+      case 'cancelled':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Widget buildProgressStep(
+    String title,
+    String currentStatus,
+    String stepStatus, {
+    bool isLast = false,
+  }) {
+    final statusOrder = [
+      'scheduled',
+      'enroute',
+      'arrived',
+      'waiting',
+      'in_progress',
+      'completed',
+    ];
+
+    final currentIndex = statusOrder.indexOf(currentStatus.toLowerCase());
+
+    final stepIndex = statusOrder.indexOf(stepStatus.toLowerCase());
+
+    final isCompleted = stepIndex < currentIndex;
+
+    final isCurrent = stepIndex == currentIndex;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          children: [
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isCompleted
+                    ? Colors.green
+                    : isCurrent
+                    ? Colors.orange
+                    : Colors.grey.shade300,
+              ),
+              child: Icon(
+                isCompleted
+                    ? Icons.check
+                    : isCurrent
+                    ? Icons.radio_button_checked
+                    : Icons.circle,
+                size: 18,
+                color: isCompleted || isCurrent ? Colors.white : Colors.grey,
+              ),
+            ),
+
+            if (!isLast)
+              Container(
+                width: 3,
+                height: 30,
+                color: isCompleted ? Colors.green : Colors.grey.shade300,
+              ),
+          ],
+        ),
+
+        const SizedBox(width: 12),
+
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+                color: isCompleted
+                    ? Colors.green
+                    : isCurrent
+                    ? Colors.orange
+                    : Colors.grey,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget toolButton(IconData icon, String label, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        children: [
+          CircleAvatar(radius: 24, child: Icon(icon)),
+          const SizedBox(height: 5),
+          Text(label),
+        ],
+      ),
+    );
   }
 }

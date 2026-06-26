@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sharedwheel_app/utils/functions.dart';
+import 'package:shared_wheel/constants/base_state.dart';
+import '../../utils/functions.dart';
 import 'driver_ride_details_screen.dart';
 import '../../constants/app_colors.dart';
 import '../../models/ride_model.dart';
@@ -14,14 +15,18 @@ class MyRidesScreen extends StatefulWidget {
   State<MyRidesScreen> createState() => MyRidesScreenState();
 }
 
-class MyRidesScreenState extends State<MyRidesScreen> {
+class MyRidesScreenState extends BaseState<MyRidesScreen> {
   final RideService rideService = RideService();
   List<RideModel> rides = [];
   bool isLoading = false;
 
   @override
-  void initState() {
-    super.initState();
+  void onInit() {
+    loadRides();
+  }
+
+  @override
+  void onResume() {
     loadRides();
   }
 

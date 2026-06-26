@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-// import 'package:sharedwheel_app/screens/admin/settings_screen.dart';
-import 'package:sharedwheel_app/screens/driver/driver_dashboard.dart';
-import 'package:sharedwheel_app/services/auth_service.dart';
-import 'package:sharedwheel_app/utils/app_session.dart';
+import 'package:shared_wheel/screens/auth/forgot_password_screen.dart';
+import '../driver/driver_dashboard_screen.dart';
+import '../passenger/passenger_dashboard_screen.dart';
+import '../../services/auth_service.dart';
+import '../../utils/app_session.dart';
 import '../../constants/app_colors.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/primary_button.dart';
 import '../../utils/functions.dart';
 import '../../models/user_model.dart';
 import '../admin/admin_dashboard_screen.dart';
-import '../passenger/passenger_dashboard.dart';
-import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,10 +27,21 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.secondary,
+      appBar: AppBar(
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Login', style: TextStyle(fontSize: 20),),
+            Text("Sign in to continue using SharedWheel", style: TextStyle(fontSize: 15),)
+          ],
+        ),
+        backgroundColor: AppColors.info,
+        foregroundColor: Colors.white,
+      ),
       body: SafeArea(
         child: Center(
           child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 15),
+            margin: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
             decoration: BoxDecoration(
               border: BoxBorder.all(width: 3, color: Colors.blue),
               borderRadius: BorderRadius.circular(50),
@@ -63,14 +73,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                   ),
 
-                  const SizedBox(height: 10),
-
-                  const Text(
-                    'Sign in to continue using SharedWheel',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                  ),
-
                   const SizedBox(height: 40),
 
                   CustomTextField(
@@ -95,7 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        // Forgot Password
+                        Functions.navigateTo(context, ForgotPasswordScreen());
                       },
                       child: const Text('Forgot Password?'),
                     ),
@@ -106,21 +108,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   isLoading
                       ? const CircularProgressIndicator()
                       : PrimaryButton(text: 'Login', onPressed: login),
-
-                  const SizedBox(height: 10),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Don't have an account?"),
-                      TextButton(
-                        onPressed: () {
-                          Functions.navigateTo(context, RegisterScreen());
-                        },
-                        child: const Text('Register'),
-                      ),
-                    ],
-                  ),
 
                   const SizedBox(height: 10),
 
@@ -158,6 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (result["success"] == true) {
         final UserModel user = UserModel.fromJson(result["user"]);
         AppSession.userId = user.id;
+        AppSession.userType = user.userType;
         AppSession.fullName = user.fullName;
         AppSession.phone = user.phone;
         AppSession.email = user.email;
@@ -167,10 +155,13 @@ class _LoginScreenState extends State<LoginScreen> {
         if (user.userType == 'admin') {
           Functions.replaceWith(context, AdminDashboardScreen());
         } else if (user.userType == 'passenger') {
-          Functions.replaceWith(context, PassengerDashboard());
+          Functions.replaceWith(context, PassengerDashboardScreen());
         } else if (user.userType == 'driver') {
-          Functions.replaceWith(context, DriverDashboard());
+          Functions.replaceWith(context, DriverDashboardScreen());
         }
+      }
+      else {
+        Functions.error(context, result["message"].toString());
       }
     } catch (e) {
       Functions.error(context, e.toString());

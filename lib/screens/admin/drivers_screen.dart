@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sharedwheel_app/screens/admin/user_details_screen.dart';
+import 'user_details_screen.dart';
 
 import '../../constants/app_colors.dart';
 import '../../models/user_model.dart';

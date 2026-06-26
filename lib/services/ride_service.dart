@@ -1,19 +1,26 @@
+import 'package:flutter/cupertino.dart';
+
+import '../models/passenger_model.dart';
+import '../models/ride_model.dart';
 import '../utils/api_endpoints.dart';
 import '../utils/app_session.dart';
 import 'api_service.dart';
-import '../models/ride_model.dart';
-import '../models/passenger_model.dart';
 
 class RideService {
   final ApiService api = ApiService();
 
   Future<List<RideModel>> searchRides({
-    String? fromCity,
-    String? toCity,
+    int? fromCityId,
+    int? toCityId,
+    DateTime? travelDate,
   }) async {
     final result = await api.get(
       endpoint: ApiEndpoints.searchRides,
-      queryParameters: {'from_city': ?fromCity, 'to_city': ?toCity},
+      queryParameters: {
+        'from_city_id': fromCityId,
+        'to_city_id': toCityId,
+        'travelDate' : travelDate,
+      },
     );
 
     if (result['success'] != true) {
@@ -27,11 +34,9 @@ class RideService {
 
   Future<List<RideModel>> getAvailableRides() async {
     final result = await api.get(endpoint: ApiEndpoints.searchRides);
-
     if (result['success'] != true) {
       return [];
     }
-
     return (result['rides'] as List)
         .map((ride) => RideModel.fromJson(ride))
         .toList();
@@ -51,8 +56,9 @@ class RideService {
   }
 
   Future<dynamic> postRide({
-    required String fromCity,
-    required String toCity,
+    required int vehicleId,
+    required int fromCityId,
+    required int toCityId,
     required String pickupLocation,
     required String dropLocation,
     required String travelDate,
@@ -66,9 +72,10 @@ class RideService {
     return await api.post(
       endpoint: ApiEndpoints.postRide,
       data: {
+        'vehicle_id': vehicleId,
+        'from_city_id': fromCityId,
+        'to_city_id': toCityId,
         'driver_id': AppSession.userId.toString(),
-        'from_city': fromCity,
-        'to_city': toCity,
         'pickup_location': pickupLocation,
         'drop_location': dropLocation,
         'travel_date': travelDate,
@@ -82,14 +89,17 @@ class RideService {
     );
   }
 
-  Future<List<PassengerModel>> getRidePassengers(int rideId, int driverId) async {
-  //  Future<List<PassengerModel>> getRidePassengers(int rideId) async {
+  Future<List<PassengerModel>> getRidePassengers(
+    int rideId,
+    int driverId,
+  ) async {
+    //  Future<List<PassengerModel>> getRidePassengers(int rideId) async {
     final result = await api.get(
       endpoint: ApiEndpoints.ridePassengers,
       // queryParameters: {'ride_id'   : rideId.toString(),},
       queryParameters: {
-        'ride_id'   : rideId.toString(),
-        'driver_id' : driverId.toString(),
+        'ride_id': rideId.toString(),
+        'driver_id': driverId.toString(),
       },
     );
     if (result['success'] != true) {
@@ -116,6 +126,9 @@ class RideService {
       queryParameters: {'ride_id': rideId.toString()},
     );
 
+    debugPrint(result.toString());
+    debugPrint(result['ride'].toString());
+
     if (result['success'] != true) {
       return null;
     }
@@ -133,5 +146,29 @@ class RideService {
     }
 
     return (result['rides'] as List).map((e) => RideModel.fromJson(e)).toList();
+  }
+
+  Future<List<RideModel>> getActiveRides() async {
+    final rides = await getMyRides();
+    return rides
+        .where(
+          (ride) =>
+              ride.rideStatus.toLowerCase() == 'scheduled' ||
+              ride.rideStatus.toLowerCase() == 'enroute' ||
+              ride.rideStatus.toLowerCase() == 'arrived' ||
+              ride.rideStatus.toLowerCase() == 'waiting' ||
+              ride.rideStatus.toLowerCase() == 'in_progress',
+        )
+        .toList();
+  }
+
+  Future<Map<String, dynamic>> getRideFare({
+    required int fromCityId,
+    required int toCityId,
+  }) async {
+    return await api.get(
+      endpoint:
+          '${ApiEndpoints.getRideFare}?from_city_id=$fromCityId&to_city_id=$toCityId',
+    );
   }
 }

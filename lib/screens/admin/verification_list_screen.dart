@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sharedwheel_app/screens/admin/widgets/verification_status_tab.dart';
+import 'widgets/verification_status_tab.dart';
 import '../../services/driver_verification_service.dart';
 
 class VerificationListScreen extends StatefulWidget {

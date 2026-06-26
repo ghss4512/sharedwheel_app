@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sharedwheel_app/screens/shared/withdraw_request_screen.dart';
+import '../shared/withdraw_request_screen.dart';
 import '../../constants/app_colors.dart';
 import '../../models/wallet_model.dart';
 import '../../models/wallet_transaction_model.dart';

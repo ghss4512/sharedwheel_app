@@ -6,6 +6,7 @@ import '../../services/ride_service.dart';
 import '../../utils/functions.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../widgets/loading_widget.dart';
+import 'completed_ride_details_screen.dart';
 
 class CompletedRidesScreen extends StatefulWidget {
   const CompletedRidesScreen({super.key});
@@ -68,48 +69,103 @@ class CompletedRidesScreenState extends State<CompletedRidesScreen> {
   }
 
   Widget rideCard(RideModel ride) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('${Functions.toProperCase(ride.fromCity)} → ${Functions.toProperCase(ride.toCity)}',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text('📍 Pickup: ${ride.pickupLocation}'),
-            const SizedBox(height: 8),
-            Text('🏁 Drop: ${ride.dropLocation}'),
-            const SizedBox(height: 10),
-            Text('📅 ${ride.travelDate}'),
-            Text('⏰ ${Functions.convertTo12Hour(ride.travelTime)}'),
-            const SizedBox(height: 8),
-            Text('🚗 ${ride.vehicleName}'),
-            Text('🔢 ${ride.vehicleNumber}'),
-            Text('🎨 ${ride.vehicleColor}'),
-            const SizedBox(height: 8),
-            Text('💺 Seats: ${ride.totalSeats}'),
-            Text('💰 Rs. ${Functions.formatCurrency(ride.farePerSeat, 0)} / Seat',),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.circular(20),
+    return InkWell(
+      onTap: () {
+        Functions.navigateTo(context, CompletedRideDetailsScreen(ride: ride));
+      },
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.route, color: AppColors.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '${Functions.toProperCase(ride.fromCity)} → '
+                      '${Functions.toProperCase(ride.toCity)}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withAlpha(25),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text(
+                      'COMPLETED',
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              child: const Text(
-                'COMPLETED',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+
+              const SizedBox(height: 12),
+
+              Row(
+                children: [
+                  const Icon(Icons.calendar_month, size: 18, color: Colors.red),
+                  const SizedBox(width: 5),
+                  Text(ride.travelDate),
+                  const SizedBox(width: 20),
+                  const Icon(Icons.access_time, size: 18, color: Colors.green),
+                  const SizedBox(width: 5),
+                  Text(Functions.convertTo12Hour(ride.travelTime)),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.currency_exchange, size: 18),
+                  const SizedBox(width: 5),
+                  Text(
+                    "Rs. ${Functions.formatCurrency(ride.farePerSeat, 0)}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.indigoAccent,
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  const Icon(Icons.event_seat, size: 18, color: Colors.blue),
+                  const SizedBox(width: 5),
+                  Text('${ride.totalSeats} Seats'),
+                  const Spacer(),
+                  Icon(Icons.arrow_forward_ios),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Color getPassengerStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'boarded':
+        return Colors.green;
+      case 'no_show':
+        return Colors.red;
+      case 'completed':
+        return Colors.blue;
+      default:
+        return Colors.grey;
+    }
   }
 }
